@@ -40,7 +40,7 @@ export function Contact() {
             <div className="flex items-center gap-2 mt-2">
               <Mail className="w-5 h-5 text-blue-600" />
               <a href="mailto:support@candlyzeai.com" className="text-blue-600 hover:text-blue-800">
-                support@candlyzai.com
+                support@candlyzeai.com
               </a>
             </div>
           </section>
