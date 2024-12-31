@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageLayout } from './PageLayout';
 
-export function Refund() {
+export function About() {
   return (
     <PageLayout title="About Us">
       <div className="prose prose-lg max-w-none">
