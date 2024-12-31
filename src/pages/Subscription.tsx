@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageLayout } from './PageLayout';
 
-export function subscription() {
+export function Subscription() {
   return (
     <PageLayout title="Subscription Plans">
       <div className="prose prose-lg max-w-none">
