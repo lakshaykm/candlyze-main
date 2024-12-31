@@ -12,6 +12,7 @@ export function Footer() {
           <div className="flex gap-6">
             <Link href="/about">About Us</Link>
             <Link href="/terms">Terms & Conditions</Link>
+            <Link href="/subscription">Subscription Plans</Link>
             <Link href="/privacy">Privacy Policy</Link>
             <Link href="/refund">Refund Policy</Link>
             <Link href="/contact">Contact Us</Link>
