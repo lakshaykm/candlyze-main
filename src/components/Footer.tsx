@@ -10,6 +10,7 @@ export function Footer() {
             <span className="text-sm">© {new Date().getFullYear()} CandlyzeAI. All rights reserved.</span>
           </div>
           <div className="flex gap-6">
+            <Link href="/about">About Us</Link>
             <Link href="/terms">Terms & Conditions</Link>
             <Link href="/privacy">Privacy Policy</Link>
             <Link href="/refund">Refund Policy</Link>
