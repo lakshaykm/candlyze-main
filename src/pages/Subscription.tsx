@@ -14,7 +14,7 @@ export function Subscription() {
 Detailed Analysis: Get insights on key support and resistance levels, trend direction, and pattern formations for each chart you upload.
 AI-Powered Insights: Our AI provides real-time, actionable insights based on the patterns detected in the charts.
 Affordable and Flexible: The Basic plan is an affordable option to get started with comprehensive chart analysis.
-Price: $6.99/month
+Price: $6.99/week
 </p>
 
         <h2 className="text-xl font-bold mt-8 mb-4">2. Pro Plan</h2>
@@ -22,7 +22,7 @@ Price: $6.99/month
 Advanced Analysis: In addition to the basic trend, level, and pattern analysis, the Pro plan includes more detailed insights into market momentum, volatility, and potential breakout points.
 AI-Driven Alerts: Receive AI-powered notifications for key trends and patterns detected within your charts.
 Extended Historical Data Access: Gain access to additional historical data to track your trades and learn from past patterns.
-Price: $12.99/month</p>
+Price: $12.99/week</p>
 
         <h2 className="text-xl font-bold mt-8 mb-4">3. Elite Plan</h2>
         <p>Upload 300 Charts per Month: Upload up to 300 candlestick chart screenshots per month.
@@ -30,7 +30,7 @@ Comprehensive Analysis: Get full access to trend analysis, pattern recognition, 
 Full Historical Data Access: Enjoy full access to historical data for extensive analysis, backtesting strategies, and improving trading decisions.
 Priority Support: Elite users receive premium, priority support to ensure fast response times and personalized assistance.
 Exclusive AI Insights: Access more in-depth AI-driven insights, including predictive trends, market forecasts, and advanced pattern identification to stay ahead of market changes.
-Price: $22.99/month</p>
+Price: $22.99/week</p>
         
         <div className="mt-4">
           <p className="font-semibold">CandlyzeAI</p>
