@@ -15,7 +15,7 @@ export async function analyzeChart(imageBase64: string): Promise<string> {
           content: [
             { 
               type: "text", 
-              text: "Analyze this candlestick chart. Please provide:\n1. Key support and resistance levels\n2. Notable candlestick patterns\n3. Overall trend analysis\n4. Chart analysis with indicator, if any indicator is present on the chart\n5. Potential price targets" 
+              text: "Analyze this candlestick chart. Please provide:\n1. Detailed Key support and resistance levels\n2. Notable candlestick patterns\n3. Overall detailed trend analysis\n4. Chart analysis with indicator, if any indicator is present on the chart\n5. Potential price targets" 
             },
             {
               type: "image_url",
