@@ -41,7 +41,7 @@ const plans: PricingPlan[] = [
     chartLimit: 150,
     highlighted: true,
     features: [
-      { text: 'Upload up to 75 charts per week', included: true },
+      { text: 'Upload up to 150 charts per week', included: true },
       { text: 'Key Support and Resistance levels', included: true },
       { text: 'Trend direction analysis', included: true },
       { text: 'Historical data access', included: true },
@@ -58,7 +58,7 @@ const plans: PricingPlan[] = [
     description: 'Maximum power for professional traders',
     chartLimit: 300,
     features: [
-      { text: 'Upload up to 75 charts per week', included: true },
+      { text: 'Upload up to 300 charts per week', included: true },
       { text: 'Key Support and Resistance levels', included: true },
       { text: 'Trend direction analysis', included: true },
       { text: 'Historical data access', included: true },
