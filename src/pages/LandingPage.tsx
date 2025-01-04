@@ -3,6 +3,7 @@ import { ArrowRight, BarChart2, LineChart, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
 import { PricingSection } from '../components/PricingSection';
+import { ChartAnalysisSteps } from '../components/ChartAnalysisSteps';
 
 export function LandingPage() {
   return (
@@ -27,6 +28,9 @@ export function LandingPage() {
               <ArrowRight className="w-5 h-5" />
             </Link>
           </div>
+
+          {/* Two-Step Process Demo */}
+          <ChartAnalysisSteps />
         </div>
       </div>
 
