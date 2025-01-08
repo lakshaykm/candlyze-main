@@ -2,12 +2,13 @@ import React from 'react';
 import { ArrowRight, BarChart2, LineChart, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Navbar } from '../components/Navbar';
+import { Footer } from '../components/Footer';
 import { PricingSection } from '../components/PricingSection';
 import { ChartAnalysisSteps } from '../components/ChartAnalysisSteps';
 
 export function LandingPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar />
       
       {/* Hero Section */}
@@ -65,6 +66,8 @@ export function LandingPage() {
 
       {/* Pricing Section */}
       <PricingSection />
+
+      <Footer />
     </div>
   );
 }
