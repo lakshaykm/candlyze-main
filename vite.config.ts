@@ -7,4 +7,12 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['lucide-react'],
   },
+  server: {
+    // Handle SPA routing during development
+    historyApiFallback: true,
+  },
+  preview: {
+    // Handle SPA routing during preview
+    historyApiFallback: true,
+  },
 });
