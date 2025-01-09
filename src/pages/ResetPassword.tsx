@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../components/AuthLayout';
 import { supabase } from '../lib/supabase-client';
@@ -9,6 +9,17 @@ export function ResetPassword() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Check if we have a valid session on component mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate('/signin', { replace: true });
+      }
+    };
+    checkSession();
+  }, [navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,7 +44,9 @@ export function ResetPassword() {
 
       if (error) throw error;
 
-      navigate('/app');
+      // Show success message and redirect
+      alert('Password updated successfully!');
+      navigate('/app', { replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
