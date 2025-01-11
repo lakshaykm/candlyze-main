@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthLayout } from '../components/AuthLayout';
+import { PasswordRequirements } from '../components/PasswordRequirements';
 import { supabase } from '../lib/supabase-client';
 
 export function ResetPassword() {
@@ -10,7 +11,6 @@ export function ResetPassword() {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  // Check if we have a valid session on component mount
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -21,21 +21,31 @@ export function ResetPassword() {
     checkSession();
   }, [navigate]);
 
+  const validatePassword = (password: string) => {
+    const hasLength = password.length >= 8 && password.length <= 16;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasLower = /[a-z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    
+    return hasLength && hasUpper && hasLower && hasNumber && hasSpecial;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     
+    if (!validatePassword(password)) {
+      setError('Password does not meet the requirements');
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
 
-    if (password.length < 6) {
-      setError('Password must be at least 6 characters');
-      return;
-    }
-
     setLoading(true);
-    setError(null);
 
     try {
       const { error } = await supabase.auth.updateUser({
@@ -44,7 +54,6 @@ export function ResetPassword() {
 
       if (error) throw error;
 
-      // Show success message and redirect
       alert('Password updated successfully!');
       navigate('/app', { replace: true });
     } catch (err) {
@@ -96,6 +105,7 @@ export function ResetPassword() {
               className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
+          <PasswordRequirements password={password} />
         </div>
 
         <button
