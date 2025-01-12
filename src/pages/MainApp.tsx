@@ -7,8 +7,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useCharts } from '../hooks/useCharts';
 import { analyzeChart } from '../services/openai';
 import { convertFileToBase64 } from '../utils/imageUtils';
-import { Header } from '../components/Header';
-import { Footer } from '../components/Footer';
+import { AppLayout } from '../components/AppLayout';
 
 export function MainApp() {
   const { user, loading: authLoading } = useAuth();
@@ -49,10 +48,8 @@ export function MainApp() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-
-      <main className="flex-grow container mx-auto px-4 py-8">
+    <AppLayout>
+      <div className="max-w-4xl mx-auto">
         {error && (
           <div className="mb-8 p-4 bg-red-100 text-red-700 rounded-lg">
             {error}
@@ -78,9 +75,7 @@ export function MainApp() {
             isLoading={chartsLoading}
           />
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </AppLayout>
   );
 }
