@@ -27,8 +27,8 @@ export function UserMenu({ fullName, onSignOut }: UserMenuProps) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 px-4 py-2 bg-blue-700 rounded-lg hover:bg-blue-800 transition-colors"
       >
-        <span>{fullName}</span>
-        <ChevronDown className="w-4 h-4" />
+        <span className="text-white font-bold">{fullName}</span>
+        <ChevronDown className="w-4 h-4 text-white" />
       </button>
 
       {isOpen && (
