@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   BarChart2, 
@@ -7,7 +7,14 @@ import {
   HelpCircle, 
   FileText,
   CreditCard,
-  History
+  History,
+  ChevronDown,
+  ChevronRight,
+  Target,
+  TrendingUp,
+  Shapes,
+  BarChart,
+  LineChart2
 } from 'lucide-react';
 
 interface SidebarLinkProps {
@@ -33,10 +40,33 @@ function SidebarLink({ to, icon, label, isActive }: SidebarLinkProps) {
   );
 }
 
+interface SubMenuLinkProps {
+  to: string;
+  label: string;
+  isActive: boolean;
+}
+
+function SubMenuLink({ to, label, isActive }: SubMenuLinkProps) {
+  return (
+    <Link
+      to={to}
+      className={`flex items-center gap-3 px-4 py-2 pl-12 rounded-lg transition-colors ${
+        isActive 
+          ? 'bg-blue-600 text-white' 
+          : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+      }`}
+    >
+      <span className="font-medium text-sm">{label}</span>
+    </Link>
+  );
+}
+
 export function Sidebar() {
   const location = useLocation();
+  const [isAnalysisOpen, setIsAnalysisOpen] = useState(true);
   
   const isActive = (path: string) => location.pathname === path;
+  const isAnalysisSection = location.pathname.startsWith('/app/analysis');
 
   return (
     <div className="w-64 bg-white border-r border-gray-200 min-h-screen p-4">
@@ -53,12 +83,55 @@ export function Sidebar() {
           isActive={isActive('/app')}
         />
         
-        <SidebarLink
-          to="/app/analysis"
-          icon={<LineChart className="w-5 h-5" />}
-          label="Chart Analysis"
-          isActive={isActive('/app/analysis')}
-        />
+        {/* Chart Analysis with submenu */}
+        <div>
+          <button
+            onClick={() => setIsAnalysisOpen(!isAnalysisOpen)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+              isAnalysisSection
+                ? 'bg-blue-600 text-white'
+                : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+            }`}
+          >
+            <LineChart className="w-5 h-5" />
+            <span className="font-medium flex-1 text-left">Chart Analysis</span>
+            {isAnalysisOpen ? (
+              <ChevronDown className="w-4 h-4" />
+            ) : (
+              <ChevronRight className="w-4 h-4" />
+            )}
+          </button>
+
+          {isAnalysisOpen && (
+            <div className="mt-1 space-y-1">
+              <SubMenuLink
+                to="/app/analysis/key-levels"
+                label="Key Levels Analysis"
+                isActive={isActive('/app/analysis/key-levels')}
+              />
+              <SubMenuLink
+                to="/app/analysis/trend"
+                label="Trend Analysis"
+                isActive={isActive('/app/analysis/trend')}
+              />
+              <SubMenuLink
+                to="/app/analysis/patterns"
+                label="Pattern Recognition"
+                isActive={isActive('/app/analysis/patterns')}
+              />
+              <SubMenuLink
+                to="/app/analysis/indicators"
+                label="Indicator Analysis"
+                isActive={isActive('/app/analysis/indicators')}
+              />
+              <SubMenuLink
+                to="/app/analysis/prediction"
+                label="Price Prediction"
+                isActive={isActive('/app/analysis/prediction')}
+              />
+            </div>
+          )}
+        </div>
         
         <SidebarLink
           to="/app/history"
