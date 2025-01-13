@@ -21,6 +21,7 @@ export default function App() {
       <Route path="/features" element={<Features />} />
       <Route path="/about" element={<About />} />
       <Route path="/app" element={<MainApp />} />
+      <Route path="/app/analysis/*" element={<MainApp />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/subscription" element={<Subscription />} />
       <Route path="/privacy" element={<Privacy />} />
