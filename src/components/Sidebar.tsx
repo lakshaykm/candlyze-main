@@ -52,11 +52,11 @@ function SubMenuLink({ to, label, isActive }: SubMenuLinkProps) {
       to={to}
       className={`flex items-center gap-3 px-4 py-2 pl-12 rounded-lg transition-colors ${
         isActive 
-          ? 'bg-blue-600 text-white' 
-          : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
+          ? 'bg-gray-100 text-blue-600 font-medium' 
+          : 'text-gray-600 hover:bg-gray-50 hover:text-blue-600'
       }`}
     >
-      <span className="font-medium text-sm">{label}</span>
+      <span className="text-sm">{label}</span>
     </Link>
   );
 }
