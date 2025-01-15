@@ -19,7 +19,7 @@ export function PageTransition({ children }: PageTransitionProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="h-full flex items-center justify-center min-h-[calc(100vh-4rem)]">
         <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
