@@ -5,6 +5,7 @@ import { supabase } from '../lib/supabase-client';
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastVisitedPage, setLastVisitedPage] = useState<string>('/app');
 
   useEffect(() => {
     // Check current session
@@ -25,9 +26,18 @@ export function useAuth() {
     await supabase.auth.signOut();
   };
 
+  const updateLastVisitedPage = (path: string) => {
+    // Only update if it's an app page
+    if (path.startsWith('/app')) {
+      setLastVisitedPage(path);
+    }
+  };
+
   return {
     user,
     loading,
-    signOut
+    signOut,
+    lastVisitedPage,
+    updateLastVisitedPage
   };
 }
