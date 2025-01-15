@@ -16,8 +16,32 @@ const ANALYSIS_PROMPTS: Record<AnalysisType, string> = {
 5. Potential breakout or breakdown levels
 6. Recommendations for stop loss and take profit levels based on key levels`,
   
-  'trend': "Analyze this candlestick chart. Focus on trend analysis...",
-  'patterns': "Analyze this candlestick chart. Focus on pattern recognition...",
+  'trend': `Analyze this candlestick chart focusing on trend analysis. Please provide:
+1. Primary trend direction (bullish, bearish, or sideways)
+2. Trend strength analysis using price action and candlestick patterns
+3. Key trend lines and channels
+4. Potential trend reversal signals or continuation patterns
+5. Multiple timeframe trend analysis if visible
+6. Volume analysis and its relationship with the trend
+7. Momentum analysis
+8. Key swing highs and lows
+9. Potential trend targets based on price action
+10. Risk management suggestions for trend trading`,
+
+  'patterns': `Analyze this candlestick chart focusing on pattern recognition. Please provide:
+1. Identification of any classical chart patterns (e.g., Head & Shoulders, Double Top/Bottom, Triangle, etc.)
+2. Candlestick patterns and their significance
+3. Pattern completion percentage and validity analysis
+4. Potential price targets based on the identified patterns
+5. Suggested entry points with specific price levels
+6. Stop loss levels based on pattern structure
+7. Take profit targets with rationale
+8. Pattern reliability assessment
+9. Volume confirmation analysis
+10. Risk-to-reward ratio for the potential trade setup
+11. Additional confirmation signals to watch for
+12. Time frame considerations for the pattern`,
+
   'indicators': "Analyze this candlestick chart. Focus on technical indicators...",
   'prediction': "Analyze this candlestick chart. Focus on price predictions...",
   'general': "Analyze this candlestick chart. Please provide:\n1. Key support and resistance levels\n2. Notable candlestick patterns\n3. Overall trend analysis\n4. Technical indicator analysis if present\n5. Potential price targets"
