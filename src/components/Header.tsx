@@ -1,12 +1,25 @@
 import React from 'react';
 import { BarChart2, Home, Menu, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { UserMenu } from './UserMenu';
 import { useAuth } from '../hooks/useAuth';
 
 export function Header() {
-  const { user, signOut } = useAuth();
+  const { user, signOut, lastVisitedPage } = useAuth();
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleHomeClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (user) {
+      // If user is logged in, navigate to their last visited page or default to /app
+      navigate(lastVisitedPage || '/app');
+    } else {
+      // If user is not logged in, navigate to landing page
+      navigate('/');
+    }
+  };
 
   return (
     <header className="bg-blue-600 text-white py-4">
@@ -31,13 +44,13 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:block">
-            <Link 
-              to="/" 
+            <button 
+              onClick={handleHomeClick}
               className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
             >
               <Home className="w-5 h-5" />
               <span>Home</span>
-            </Link>
+            </button>
           </nav>
 
           {/* Desktop User Menu */}
@@ -55,14 +68,16 @@ export function Header() {
         {isMenuOpen && (
           <div className="md:hidden mt-4 py-4 border-t border-blue-500">
             <nav className="flex flex-col space-y-4">
-              <Link 
-                to="/" 
+              <button 
+                onClick={(e) => {
+                  handleHomeClick(e);
+                  setIsMenuOpen(false);
+                }}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-                onClick={() => setIsMenuOpen(false)}
               >
                 <Home className="w-5 h-5" />
                 <span>Home</span>
-              </Link>
+              </button>
               {user && (
                 <button
                   onClick={() => {
