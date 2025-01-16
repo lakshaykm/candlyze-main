@@ -19,6 +19,7 @@ import { TrendAnalysis } from './pages/TrendAnalysis';
 import { PatternRecognition } from './pages/PatternRecognition';
 import { IndicatorAnalysis } from './pages/IndicatorAnalysis';
 import { PricePrediction } from './pages/PricePrediction';
+import { ShippingDelivery } from './pages/ShippingDelivery';
 
 export default function App() {
   const location = useLocation();
@@ -51,6 +52,7 @@ export default function App() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/shipping-delivery" element={<ShippingDelivery />} />
     </Routes>
   );
 }
