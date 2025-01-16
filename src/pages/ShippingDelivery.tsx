@@ -5,7 +5,7 @@ import { PageTransition } from '../components/PageTransition';
 export function ShippingDelivery() {
   return (
     <PageTransition>
-      <PageLayout title="Shipping & Delivery">
+      <PageLayout title="Shipping and Delivery">
         <div className="prose prose-lg max-w-none">
           <p className="text-gray-600 mb-8">Last Updated: 29/12/2024</p>
 
