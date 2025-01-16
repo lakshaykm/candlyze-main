@@ -15,6 +15,7 @@ export function Footer() {
             <Link href="/subscription" className="py-2 md:py-0">Subscription Plans</Link>
             <Link href="/privacy" className="py-2 md:py-0">Privacy Policy</Link>
             <Link href="/refund" className="py-2 md:py-0">Refund Policy</Link>
+            <Link href="/shipping-delivery" className="py-2 md:py-0">Shipping & Delivery</Link>
             <Link href="/contact" className="py-2 md:py-0">Contact Us</Link>
           </div>
         </div>
