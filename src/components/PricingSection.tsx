@@ -1,6 +1,8 @@
 import React from 'react';
 import { Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCurrency } from '../hooks/useCurrency';
+import { convertPrice, formatPrice } from '../utils/currencyUtils';
 
 interface PricingFeature {
   text: string;
@@ -9,7 +11,7 @@ interface PricingFeature {
 
 interface PricingPlan {
   name: string;
-  price: string;
+  priceUSD: number;
   description: string;
   features: PricingFeature[];
   chartLimit: number;
@@ -19,7 +21,7 @@ interface PricingPlan {
 const plans: PricingPlan[] = [
   {
     name: 'Basic',
-    price: '$6.99/week',
+    priceUSD: 6.99,
     description: 'Perfect for beginners and casual traders',
     chartLimit: 75,
     features: [
@@ -36,7 +38,7 @@ const plans: PricingPlan[] = [
   },
   {
     name: 'Pro',
-    price: '$12.99/week',
+    priceUSD: 12.99,
     description: 'For serious traders who need more power',
     chartLimit: 150,
     highlighted: true,
@@ -54,7 +56,7 @@ const plans: PricingPlan[] = [
   },
   {
     name: 'Elite',
-    price: '$22.99/week',
+    priceUSD: 22.99,
     description: 'Maximum power for professional traders',
     chartLimit: 300,
     features: [
@@ -72,6 +74,8 @@ const plans: PricingPlan[] = [
 ];
 
 export function PricingSection() {
+  const { currency, loading } = useCurrency();
+
   return (
     <div id="pricing" className="bg-gray-50 py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -84,59 +88,66 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
-          {plans.map((plan) => (
-            <div
-              key={plan.name}
-              className={`bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-200 hover:scale-105 ${
-                plan.highlighted ? 'ring-2 ring-blue-500' : ''
-              }`}
-            >
-              <div className="p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {plan.name}
-                </h3>
-                <div className="mb-4">
-                  <span className="text-4xl font-bold text-gray-900">
-                    {plan.price}
-                  </span>
+        {loading ? (
+          <div className="flex justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : (
+          <div className="grid md:grid-cols-3 gap-8">
+            {plans.map((plan) => (
+              <div
+                key={plan.name}
+                className={`bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-200 hover:scale-105 ${
+                  plan.highlighted ? 'ring-2 ring-blue-500' : ''
+                }`}
+              >
+                <div className="p-8">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    {plan.name}
+                  </h3>
+                  <div className="mb-4">
+                    <span className="text-4xl font-bold text-gray-900">
+                      {formatPrice(convertPrice(plan.priceUSD, currency), currency)}
+                    </span>
+                    <span className="text-gray-600">/week</span>
+                  </div>
+                  <p className="text-gray-600 mb-6">{plan.description}</p>
+                  <Link
+                    to="/signup"
+                    className={`block text-center px-6 py-3 rounded-md font-medium transition-colors ${
+                      plan.highlighted
+                        ? 'bg-blue-600 text-white hover:bg-blue-700'
+                        : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
+                    }`}
+                  >
+                    Get Started
+                  </Link>
                 </div>
-                <p className="text-gray-600 mb-6">{plan.description}</p>
-                <Link
-                  to="/signup"
-                  className={`block text-center px-6 py-3 rounded-md font-medium transition-colors ${
-                    plan.highlighted
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
-                  }`}
-                >
-                  Get Started
-                </Link>
-              </div>
 
-              <div className="border-t border-gray-100 px-8 py-6">
-                <ul className="space-y-4">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-start gap-3">
-                      <Check
-                        className={`w-5 h-5 mt-0.5 ${
-                          feature.included ? 'text-green-500' : 'text-gray-300'
-                        }`}
-                      />
-                      <span
-                        className={
-                          feature.included ? 'text-gray-700' : 'text-gray-400'
-                        }
-                      >
-                        {feature.text}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="border-t border-gray-100 px-8 py-6">
+                  <ul className="space-y-4">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <Check
+                          className={`w-5 h-5 mt-0.5 ${
+                            feature.included ? 'text-green-500' : 'text-gray-300'
+                          }`}
+                        />
+                        <span
+                          className={
+                            feature.included ? 'text-gray-700' : 'text-gray-400'
+                          }
+                        >
+                          {feature.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
