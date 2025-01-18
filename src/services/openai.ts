@@ -5,7 +5,7 @@ const openai = new OpenAI({
   dangerouslyAllowBrowser: true
 });
 
-type AnalysisType = 'key-levels' | 'trend' | 'patterns' | 'indicators' | 'prediction' | 'general';
+type AnalysisType = 'key-levels' | 'trend' | 'patterns' | 'indicators' | 'prediction' | 'general' | 'quick';
 
 const ANALYSIS_PROMPTS: Record<AnalysisType, string> = {
   'key-levels': `Analyze this candlestick chart focusing on key price levels. Please provide:
@@ -44,13 +44,28 @@ const ANALYSIS_PROMPTS: Record<AnalysisType, string> = {
 
   'indicators': "Analyze this candlestick chart. Focus on technical indicators...",
   'prediction': "Analyze this candlestick chart. Focus on price predictions...",
-  'general': "Analyze this candlestick chart. Please provide:\n1. Key support and resistance levels\n2. Notable candlestick patterns\n3. Overall trend analysis\n4. Technical indicator analysis if present\n5. Potential price targets"
+  'general': "Analyze this candlestick chart. Please provide:\n1. Key support and resistance levels\n2. Notable candlestick patterns\n3. Overall trend analysis\n4. Technical indicator analysis if present\n5. Potential price targets",
+  'quick': `Provide a concise analysis of this candlestick chart focusing on:
+
+1. Key Levels Analysis:
+   - Major support levels
+   - Major resistance levels
+   - Key psychological levels
+   - Potential breakout/breakdown points
+
+2. Trend Analysis:
+   - Current trend direction and strength
+   - Key trend lines
+   - Potential reversal signals
+   - Important price targets
+
+Please keep the analysis brief but actionable.`
 };
 
-export async function analyzeChart(imageBase64: string, type: AnalysisType = 'general'): Promise<string> {
+export async function analyzeChart(imageBase64: string, type: AnalysisType = 'quick'): Promise<string> {
   try {
     const response = await openai.chat.completions.create({
-      model: "gpt-4o",
+      model: "gpt-4-vision-preview",
       messages: [
         {
           role: "user",
