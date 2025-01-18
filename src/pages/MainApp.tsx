@@ -40,7 +40,7 @@ export function MainApp() {
       setAnalyzing(true);
 
       const base64Image = await convertFileToBase64(file);
-      const analysisResult = await analyzeChart(base64Image);
+      const analysisResult = await analyzeChart(base64Image, 'quick');
       
       setAnalysis(analysisResult);
       await addChart(base64Image, analysisResult);
