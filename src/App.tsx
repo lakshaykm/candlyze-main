@@ -20,6 +20,7 @@ import { PatternRecognition } from './pages/PatternRecognition';
 import { IndicatorAnalysis } from './pages/IndicatorAnalysis';
 import { PricePrediction } from './pages/PricePrediction';
 import { ShippingDelivery } from './pages/ShippingDelivery';
+import { AnalysisHistory } from './pages/AnalysisHistory';
 
 export default function App() {
   const location = useLocation();
@@ -43,6 +44,7 @@ export default function App() {
       <Route path="/app/analysis/patterns" element={<PatternRecognition />} />
       <Route path="/app/analysis/indicators" element={<IndicatorAnalysis />} />
       <Route path="/app/analysis/prediction" element={<PricePrediction />} />
+      <Route path="/app/history" element={<AnalysisHistory />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/subscription" element={<Subscription />} />
       <Route path="/privacy" element={<Privacy />} />
