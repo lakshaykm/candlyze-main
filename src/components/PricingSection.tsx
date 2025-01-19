@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Check } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCurrency } from '../hooks/useCurrency';
 import { convertPrice, formatPrice } from '../utils/currencyUtils';
+import { createSubscription, loadRazorpayScript } from '../services/razorpay-service';
+import { useAuth } from '../hooks/useAuth';
 
 interface PricingFeature {
   text: string;
@@ -10,6 +12,7 @@ interface PricingFeature {
 }
 
 interface PricingPlan {
+  id: string;
   name: string;
   priceUSD: number;
   description: string;
@@ -20,6 +23,7 @@ interface PricingPlan {
 
 const plans: PricingPlan[] = [
   {
+    id: 'basic',
     name: 'Basic',
     priceUSD: 6.99,
     description: 'Perfect for beginners and casual traders',
@@ -37,6 +41,7 @@ const plans: PricingPlan[] = [
     ],
   },
   {
+    id: 'pro',
     name: 'Pro',
     priceUSD: 12.99,
     description: 'For serious traders who need more power',
@@ -55,6 +60,7 @@ const plans: PricingPlan[] = [
     ],
   },
   {
+    id: 'elite',
     name: 'Elite',
     priceUSD: 22.99,
     description: 'Maximum power for professional traders',
@@ -75,6 +81,30 @@ const plans: PricingPlan[] = [
 
 export function PricingSection() {
   const { currency, loading } = useCurrency();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadRazorpayScript();
+  }, []);
+
+  const handleSubscribe = async (plan: PricingPlan) => {
+    try {
+      if (!user) {
+        navigate('/signin');
+        return;
+      }
+
+      await createSubscription(
+        plan,
+        user.email || '',
+        user.user_metadata.full_name || ''
+      );
+    } catch (error) {
+      console.error('Subscription error:', error);
+      alert('Failed to create subscription. Please try again.');
+    }
+  };
 
   return (
     <div id="pricing" className="bg-gray-50 py-20">
@@ -112,16 +142,16 @@ export function PricingSection() {
                     <span className="text-gray-600">/week</span>
                   </div>
                   <p className="text-gray-600 mb-6">{plan.description}</p>
-                  <Link
-                    to="/signup"
-                    className={`block text-center px-6 py-3 rounded-md font-medium transition-colors ${
+                  <button
+                    onClick={() => handleSubscribe(plan)}
+                    className={`w-full px-6 py-3 rounded-md font-medium transition-colors ${
                       plan.highlighted
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
                         : 'bg-gray-100 text-gray-900 hover:bg-gray-200'
                     }`}
                   >
                     Get Started
-                  </Link>
+                  </button>
                 </div>
 
                 <div className="border-t border-gray-100 px-8 py-6">
