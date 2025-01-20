@@ -1,6 +1,14 @@
 import { supabase } from '../lib/supabase-client';
 
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
+const API_URL = import.meta.env.VITE_API_URL;
+
+// Map plan IDs to Razorpay plan IDs
+const PLAN_TO_RAZORPAY_MAP: Record<string, string> = {
+  'basic': 'plan_MxEXwgmPWHBVZr',  // Weekly Basic Plan
+  'pro': 'plan_MxEY9HwJ7VMz2p',    // Weekly Pro Plan
+  'elite': 'plan_MxEYRBHwgCZKMv'   // Weekly Elite Plan
+};
 
 interface Plan {
   id: string;
@@ -31,6 +39,11 @@ export async function createSubscription(plan: Plan, email: string, name: string
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
 
+    const razorpayPlanId = PLAN_TO_RAZORPAY_MAP[plan.id];
+    if (!razorpayPlanId) {
+      throw new Error('Invalid plan selected');
+    }
+
     // Create a subscription record in pending state
     const { data: subscription, error: subError } = await supabase
       .from('subscriptions')
@@ -45,56 +58,73 @@ export async function createSubscription(plan: Plan, email: string, name: string
 
     if (subError) throw subError;
 
-    // Create Razorpay order
-    const response = await fetch('/api/create-subscription', {
+    // Create Razorpay subscription
+    const response = await fetch(`${API_URL}/api/create-subscription`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        plan_id: plan.id,
+        plan_id: razorpayPlanId,
         subscription_id: subscription.id,
         amount: plan.priceUSD * 100
       })
     });
 
-    const { order } = await response.json();
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to create subscription');
+    }
+
+    const { subscription: razorpaySubscription } = await response.json();
 
     // Initialize Razorpay checkout
     const options = {
       key: RAZORPAY_KEY_ID,
-      subscription_id: order.id,
+      subscription_id: razorpaySubscription.id,
       name: 'CandlyzeAI',
       description: `${plan.name} Plan Subscription`,
       image: 'https://your-logo-url.png',
       handler: async function(response: any) {
-        // Verify payment on the backend
-        await fetch('/api/verify-payment', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_subscription_id: response.razorpay_subscription_id,
-            razorpay_signature: response.razorpay_signature,
-            subscription_id: subscription.id
-          })
-        });
-
-        // Update subscription status
-        await supabase
-          .from('subscriptions')
-          .update({ 
-            status: 'active',
-            razorpay_subscription_id: response.razorpay_subscription_id
-          })
-          .eq('id', subscription.id);
-
-        // Update user credits
-        await supabase
-          .from('user_credits')
-          .upsert({
-            user_id: user.id,
-            credits: plan.chartLimit,
-            plan: plan.name
+        try {
+          // Verify payment on the backend
+          const verifyResponse = await fetch(`${API_URL}/api/verify-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_subscription_id: response.razorpay_subscription_id,
+              razorpay_signature: response.razorpay_signature,
+              subscription_id: subscription.id
+            })
           });
+
+          if (!verifyResponse.ok) {
+            throw new Error('Payment verification failed');
+          }
+
+          // Update subscription status
+          await supabase
+            .from('subscriptions')
+            .update({ 
+              status: 'active',
+              razorpay_subscription_id: response.razorpay_subscription_id
+            })
+            .eq('id', subscription.id);
+
+          // Update user credits
+          await supabase
+            .from('user_credits')
+            .upsert({
+              user_id: user.id,
+              credits: plan.chartLimit,
+              plan: plan.name
+            });
+
+          // Reload the page to reflect changes
+          window.location.reload();
+        } catch (error) {
+          console.error('Error in payment handler:', error);
+          alert('Payment processed but activation failed. Please contact support.');
+        }
       },
       prefill: {
         name,
@@ -115,7 +145,7 @@ export async function createSubscription(plan: Plan, email: string, name: string
 
 export async function cancelSubscription(subscriptionId: string) {
   try {
-    const response = await fetch('/api/cancel-subscription', {
+    const response = await fetch(`${API_URL}/api/cancel-subscription`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ subscription_id: subscriptionId })
