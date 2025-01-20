@@ -25,9 +25,12 @@ declare global {
 }
 
 export async function loadRazorpayScript(): Promise<void> {
+  if (window.Razorpay) return; // Skip if already loaded
+
   return new Promise((resolve) => {
     const script = document.createElement('script');
     script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
     script.onload = () => resolve();
     document.body.appendChild(script);
   });
@@ -35,6 +38,17 @@ export async function loadRazorpayScript(): Promise<void> {
 
 export async function createSubscription(plan: Plan, email: string, name: string) {
   try {
+    // Ensure Razorpay is loaded
+    await loadRazorpayScript();
+    
+    if (!window.Razorpay) {
+      throw new Error('Razorpay failed to load');
+    }
+
+    if (!RAZORPAY_KEY_ID) {
+      throw new Error('Razorpay key is not configured');
+    }
+
     // Get the authenticated user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
@@ -119,6 +133,9 @@ export async function createSubscription(plan: Plan, email: string, name: string
               plan: plan.name
             });
 
+          // Show success message
+          alert('Payment successful! Your subscription is now active.');
+          
           // Reload the page to reflect changes
           window.location.reload();
         } catch (error) {
@@ -139,6 +156,11 @@ export async function createSubscription(plan: Plan, email: string, name: string
     razorpay.open();
   } catch (error) {
     console.error('Error creating subscription:', error);
+    if (error instanceof Error) {
+      alert(error.message);
+    } else {
+      alert('Failed to create subscription. Please try again.');
+    }
     throw error;
   }
 }
