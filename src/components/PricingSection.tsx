@@ -85,7 +85,8 @@ export function PricingSection() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadRazorpayScript();
+    // Load Razorpay script when component mounts
+    loadRazorpayScript().catch(console.error);
   }, []);
 
   const handleSubscribe = async (plan: PricingPlan) => {
@@ -102,7 +103,6 @@ export function PricingSection() {
       );
     } catch (error) {
       console.error('Subscription error:', error);
-      alert('Failed to create subscription. Please try again.');
     }
   };
 
