@@ -1,7 +1,7 @@
 import { supabase } from '../lib/supabase-client';
 
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
-const API_URL = import.meta.env.VITE_API_URL;
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 // Map plan IDs to Razorpay plan IDs
 const PLAN_TO_RAZORPAY_MAP: Record<string, string> = {
@@ -25,7 +25,7 @@ declare global {
 }
 
 export async function loadRazorpayScript(): Promise<void> {
-  if (window.Razorpay) return; // Skip if already loaded
+  if (window.Razorpay) return;
 
   return new Promise((resolve) => {
     const script = document.createElement('script');
@@ -38,7 +38,6 @@ export async function loadRazorpayScript(): Promise<void> {
 
 export async function createSubscription(plan: Plan, email: string, name: string) {
   try {
-    // Ensure Razorpay is loaded
     await loadRazorpayScript();
     
     if (!window.Razorpay) {
