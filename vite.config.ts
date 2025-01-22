@@ -10,6 +10,13 @@ export default defineConfig({
   server: {
     // Handle SPA routing during development
     historyApiFallback: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   preview: {
     // Handle SPA routing during preview
