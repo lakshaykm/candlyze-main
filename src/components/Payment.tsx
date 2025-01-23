@@ -21,7 +21,7 @@ const Payment: React.FC<PaymentProps> = () => {
     try {
       // Step 1: Create an order by calling your backend
       const response = await axios.post(
-        'https://candlyze-main-1.onrender.com/create-order',
+        'https://localhost:10000/create-order',
         {
           amount: planPrice * 100, // Amount in paise
           currency: 'INR',
