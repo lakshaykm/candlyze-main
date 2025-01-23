@@ -3,7 +3,7 @@ import { Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrency } from '../hooks/useCurrency';
 import { convertPrice, formatPrice } from '../utils/currencyUtils';
-import { createSubscription, loadRazorpayScript } from '../services/razorpay-service';
+import { loadRazorpayScript } from '../services/razorpay-service';
 import { useAuth } from '../hooks/useAuth';
 
 interface PricingFeature {
@@ -35,7 +35,7 @@ const plans: PricingPlan[] = [
       { text: 'Historical data access', included: true },
       { text: 'Basic historical data access', included: true },
       { text: '24/7 Email support', included: true },
-      { text: 'Advanced pattern recognition', included: false }, 
+      { text: 'Advanced pattern recognition', included: false },
       { text: 'Chart analysis with indicator', included: false },
       { text: 'Advanced Price Prediction', included: false },
     ],
@@ -54,7 +54,7 @@ const plans: PricingPlan[] = [
       { text: 'Historical data access', included: true },
       { text: 'Basic historical data access', included: true },
       { text: '24/7 Email support', included: true },
-      { text: 'Advanced pattern recognition', included: true }, 
+      { text: 'Advanced pattern recognition', included: true },
       { text: 'Chart analysis with indicator', included: true },
       { text: 'Advanced Price Prediction', included: false },
     ],
@@ -72,7 +72,7 @@ const plans: PricingPlan[] = [
       { text: 'Historical data access', included: true },
       { text: 'Basic historical data access', included: true },
       { text: '24/7 Email support', included: true },
-      { text: 'Advanced pattern recognition', included: true }, 
+      { text: 'Advanced pattern recognition', included: true },
       { text: 'Chart analysis with indicator', included: true },
       { text: 'Advanced Price Prediction', included: true },
     ],
@@ -89,21 +89,14 @@ export function PricingSection() {
     loadRazorpayScript().catch(console.error);
   }, []);
 
-  const handleSubscribe = async (plan: PricingPlan) => {
-    try {
-      if (!user) {
-        navigate('/signin');
-        return;
-      }
-
-      await createSubscription(
-        plan,
-        user.email || '',
-        user.user_metadata.full_name || ''
-      );
-    } catch (error) {
-      console.error('Subscription error:', error);
+  const handleSubscribe = (plan: PricingPlan) => {
+    if (!user) {
+      navigate('/signin'); // Redirect to sign-in if the user is not logged in
+      return;
     }
+
+    // Navigate to the Payment component with plan details
+    navigate(`/payment`, { state: { plan } });
   };
 
   return (
