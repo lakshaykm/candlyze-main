@@ -21,7 +21,7 @@ const Payment: React.FC<PaymentProps> = () => {
     try {
       // Step 1: Create an order by calling your backend
       const response = await axios.post(
-        'https://your-backend-url.onrender.com/create-order',
+        'https://candlyze-main-1.onrender.com/create-order',
         {
           amount: planPrice * 100, // Amount in paise
           currency: 'INR',
@@ -32,10 +32,10 @@ const Payment: React.FC<PaymentProps> = () => {
 
       // Step 2: Configure Razorpay options
       const options: Razorpay.Options = {
-        key: 'your_key_id', // Replace with your Razorpay Key ID
+        key: 'rzp_test_olwgvDPZtHPkhp', // Replace with your Razorpay Key ID
         amount: amount,
         currency: currency,
-        name: 'Your App Name',
+        name: 'CandlyzeAI',
         description: `${planName} Subscription Plan`,
         order_id: order_id,
         handler: (response: Razorpay.PaymentSuccessResponse) => {
