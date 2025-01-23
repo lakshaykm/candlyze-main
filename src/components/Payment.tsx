@@ -1,19 +1,32 @@
 import React from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-interface PaymentProps {
-  planName: string; // Name of the subscription plan
-  planPrice: number; // Price of the subscription plan
-}
+interface PaymentProps {}
 
-const Payment: React.FC<PaymentProps> = ({ planName, planPrice }) => {
+const Payment: React.FC<PaymentProps> = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const plan = location.state?.plan;
+
+  // Redirect to Pricing Section if no plan details are provided
+  if (!plan) {
+    navigate('/pricing');
+    return null;
+  }
+
+  const { name: planName, priceUSD: planPrice } = plan;
+
   const handlePayment = async () => {
     try {
       // Step 1: Create an order by calling your backend
-      const response = await axios.post('https://your-backend-url.onrender.com/create-order', {
-        amount: planPrice * 100, // Amount in paise
-        currency: 'INR',
-      });
+      const response = await axios.post(
+        'https://your-backend-url.onrender.com/create-order',
+        {
+          amount: planPrice * 100, // Amount in paise
+          currency: 'INR',
+        }
+      );
 
       const { id: order_id, amount, currency } = response.data;
 
@@ -50,10 +63,22 @@ const Payment: React.FC<PaymentProps> = ({ planName, planPrice }) => {
   };
 
   return (
-    <div style={{ margin: '20px' }}>
+    <div style={{ margin: '20px', textAlign: 'center' }}>
       <h3>{planName} Plan</h3>
-      <p>Price: ₹{planPrice.toFixed(2)}</p>
-      <button onClick={handlePayment}>Subscribe Now</button>
+      <p>Price: ₹{(planPrice * 82).toFixed(2)}</p> {/* Assuming 1 USD = 82 INR */}
+      <button
+        onClick={handlePayment}
+        style={{
+          padding: '10px 20px',
+          backgroundColor: '#3399cc',
+          color: 'white',
+          border: 'none',
+          borderRadius: '5px',
+          cursor: 'pointer',
+        }}
+      >
+        Subscribe Now
+      </button>
     </div>
   );
 };
