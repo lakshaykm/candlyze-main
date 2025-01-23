@@ -23,6 +23,28 @@ import { ShippingDelivery } from './pages/ShippingDelivery';
 import { AnalysisHistory } from './pages/AnalysisHistory';
 import { Payment } from './components/Payment';
 
+
+
+const App: React.FC = () => {
+  const plans = [
+    { name: 'Basic', price: 581.01 },
+    { name: 'Pro', price: 1079.73 },
+    { name: 'Elite', price: 1910.93 },
+  ];
+
+  return (
+    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <h1>Choose Your Subscription Plan</h1>
+      {plans.map((plan) => (
+        <Payment key={plan.name} planName={plan.name} planPrice={plan.price} />
+      ))}
+    </div>
+  );
+};
+
+
+
+
 export default function App() {
   const location = useLocation();
   const { updateLastVisitedPage } = useAuth();
