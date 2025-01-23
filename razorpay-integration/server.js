@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config(); // Only load .env in development
+}
+
 const express = require('express');
 const Razorpay = require('razorpay');
 const bodyParser = require('body-parser');
