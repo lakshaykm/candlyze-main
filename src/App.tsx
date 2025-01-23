@@ -21,6 +21,7 @@ import { IndicatorAnalysis } from './pages/IndicatorAnalysis';
 import { PricePrediction } from './pages/PricePrediction';
 import { ShippingDelivery } from './pages/ShippingDelivery';
 import { AnalysisHistory } from './pages/AnalysisHistory';
+import { Payment } from './components/Payment';
 
 export default function App() {
   const location = useLocation();
