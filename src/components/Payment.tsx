@@ -32,7 +32,7 @@ const Payment: React.FC<PaymentProps> = () => {
 
       // Step 2: Configure Razorpay options
       const options: Razorpay.Options = {
-        key: 'rzp_test_olwgvDPZtHPkhp', // Replace with your Razorpay Key ID
+        key: rzp_test_olwgvDPZtHPkhp, // Replace with your Razorpay Key ID
         amount: amount,
         currency: currency,
         name: 'CandlyzeAI',
