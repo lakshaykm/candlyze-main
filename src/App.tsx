@@ -47,6 +47,7 @@ const App: React.FC = () => {
 
 export default function App() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { updateLastVisitedPage } = useAuth();
 
   useEffect(() => {
@@ -54,7 +55,17 @@ export default function App() {
     if (location.pathname.startsWith('/app')) {
       updateLastVisitedPage(location.pathname);
     }
-  }, [location, updateLastVisitedPage]);
+    if (user && location.pathname === '/signin') {
+      const selectedPlan = localStorage.getItem('selectedPlan');
+      if (selectedPlan) {
+        const plan = JSON.parse(selectedPlan);
+        localStorage.removeItem('selectedPlan');
+        navigate('/payment', { state: { plan } });
+      } else {
+        navigate('/app');
+      }
+    }
+  }, [location, updateLastVisitedPage, user, navigate]);
 
   return (
     <Routes>
