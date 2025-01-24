@@ -3,8 +3,8 @@ import { Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrency } from '../hooks/useCurrency';
 import { convertPrice, formatPrice } from '../utils/currencyUtils';
-import { loadRazorpayScript } from '../services/razorpay-service';
 import { useAuth } from '../hooks/useAuth';
+import { supabase } from '../lib/supabase-client';
 
 interface PricingFeature {
   text: string;
@@ -35,7 +35,7 @@ const plans: PricingPlan[] = [
       { text: 'Historical data access', included: true },
       { text: 'Basic historical data access', included: true },
       { text: '24/7 Email support', included: true },
-      { text: 'Advanced pattern recognition', included: false },
+      { text: 'Advanced pattern recognition', included: false }, 
       { text: 'Chart analysis with indicator', included: false },
       { text: 'Advanced Price Prediction', included: false },
     ],
@@ -54,7 +54,7 @@ const plans: PricingPlan[] = [
       { text: 'Historical data access', included: true },
       { text: 'Basic historical data access', included: true },
       { text: '24/7 Email support', included: true },
-      { text: 'Advanced pattern recognition', included: true },
+      { text: 'Advanced pattern recognition', included: true }, 
       { text: 'Chart analysis with indicator', included: true },
       { text: 'Advanced Price Prediction', included: false },
     ],
@@ -72,7 +72,7 @@ const plans: PricingPlan[] = [
       { text: 'Historical data access', included: true },
       { text: 'Basic historical data access', included: true },
       { text: '24/7 Email support', included: true },
-      { text: 'Advanced pattern recognition', included: true },
+      { text: 'Advanced pattern recognition', included: true }, 
       { text: 'Chart analysis with indicator', included: true },
       { text: 'Advanced Price Prediction', included: true },
     ],
@@ -85,18 +85,43 @@ export function PricingSection() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Load Razorpay script when component mounts
-    loadRazorpayScript().catch(console.error);
+    const loadRazorpay = () => {
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      document.body.appendChild(script);
+    };
+    loadRazorpay();
   }, []);
 
-  const handleSubscribe = (plan: PricingPlan) => {
-    if (!user) {
-      navigate('/signin'); // Redirect to sign-in if the user is not logged in
-      return;
-    }
+  const handleSubscribe = async (plan: PricingPlan) => {
+    try {
+      if (!user) {
+        // Store selected plan in localStorage before redirecting
+        localStorage.setItem('selectedPlan', JSON.stringify(plan));
+        navigate('/signin');
+        return;
+      }
 
-    // Navigate to the Payment component with plan details
-    navigate(`/payment`, { state: { plan } });
+      // Check if user has an active subscription
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single();
+
+      if (subscription) {
+        navigate('/app');
+        return;
+      }
+
+      // Navigate to payment page with plan details
+      navigate('/payment', { state: { plan } });
+    } catch (error) {
+      console.error('Subscription error:', error);
+      alert('Failed to process subscription. Please try again.');
+    }
   };
 
   return (
