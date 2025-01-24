@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase-client';
+import { useNavigate } from 'react-router-dom';
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [lastVisitedPage, setLastVisitedPage] = useState<string>('/app');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check current session
@@ -24,6 +26,7 @@ export function useAuth() {
 
   const signOut = async () => {
     await supabase.auth.signOut();
+    navigate('/'); // Redirect to landing page after sign out
   };
 
   const updateLastVisitedPage = (path: string) => {
