@@ -49,6 +49,7 @@ export function Payment() {
   };
 
   const handlePayment = async () => {
+    console.log('Checking Razorpay:', window.Razorpay);
     try {
       setLoading(true);
 
