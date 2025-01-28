@@ -131,10 +131,10 @@ export function Sidebar() {
           </div>
           
           <SidebarLink
-            to="/subscription"
+            to="/app/subscription"
             icon={<CreditCard className="w-5 h-5" />}
             label="Subscription"
-            isActive={isActive('/subscription')}
+            isActive={isActive('/app/subscription')}
           />
 
           <div className="py-3">
