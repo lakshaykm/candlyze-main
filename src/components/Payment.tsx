@@ -49,37 +49,49 @@ export function Payment() {
   };
 
   const handlePayment = async () => {
-    console.log('Checking Razorpay:', window.Razorpay);
     try {
       setLoading(true);
 
       // Create order
-      const response = await fetch('https://candlyze-main-1.onrender.com/create-order', {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/create-subscription`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          plan_id: plan.id,
           amount: plan.priceUSD * 100,
-          currency: 'INR',
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create order');
+        throw new Error('Failed to create subscription');
       }
 
-      const orderData = await response.json();
+      const { subscription } = await response.json();
 
       const options = {
-        key: 'rzp_test_olwgvDPZtHPkhp',
-        amount: orderData.amount,
-        currency: orderData.currency,
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        subscription_id: subscription.id,
         name: 'CandlyzeAI',
         description: `${plan.name} Plan Subscription`,
-        order_id: orderData.id,
-        handler: async (response: any) => {
+        handler: async function(response: any) {
           try {
+            // Verify payment
+            const verifyResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/verify-payment`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_subscription_id: response.razorpay_subscription_id,
+                razorpay_signature: response.razorpay_signature
+              }),
+            });
+
+            if (!verifyResponse.ok) {
+              throw new Error('Payment verification failed');
+            }
+
             // Create subscription record
             const { error: subscriptionError } = await supabase
               .from('subscriptions')
@@ -88,7 +100,7 @@ export function Payment() {
                 plan_id: plan.id,
                 status: 'active',
                 amount: plan.priceUSD * 100,
-                razorpay_subscription_id: response.razorpay_payment_id
+                razorpay_subscription_id: response.razorpay_subscription_id
               });
 
             if (subscriptionError) throw subscriptionError;
