@@ -24,7 +24,7 @@ export function Payment() {
     }
 
     if (!plan) {
-      navigate('/');
+      navigate('/subscription');
       return;
     }
 
@@ -53,45 +53,32 @@ export function Payment() {
       setLoading(true);
 
       // Create order
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/create-subscription`, {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/create-order`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          plan_id: plan.id,
           amount: plan.priceUSD * 100,
+          currency: 'INR',
         }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create subscription');
+        throw new Error('Failed to create order');
       }
 
-      const { subscription } = await response.json();
+      const { order } = await response.json();
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        subscription_id: subscription.id,
+        amount: order.amount,
+        currency: order.currency,
         name: 'CandlyzeAI',
         description: `${plan.name} Plan Subscription`,
+        order_id: order.id,
         handler: async function(response: any) {
           try {
-            // Verify payment
-            const verifyResponse = await fetch(`${import.meta.env.VITE_API_URL}/api/verify-payment`, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_subscription_id: response.razorpay_subscription_id,
-                razorpay_signature: response.razorpay_signature
-              }),
-            });
-
-            if (!verifyResponse.ok) {
-              throw new Error('Payment verification failed');
-            }
-
             // Create subscription record
             const { error: subscriptionError } = await supabase
               .from('subscriptions')
@@ -100,7 +87,7 @@ export function Payment() {
                 plan_id: plan.id,
                 status: 'active',
                 amount: plan.priceUSD * 100,
-                razorpay_subscription_id: response.razorpay_subscription_id
+                razorpay_subscription_id: response.razorpay_payment_id
               });
 
             if (subscriptionError) throw subscriptionError;
