@@ -36,7 +36,7 @@ export default function App() {
     }
 
     const checkUserAndSubscription = async () => {
-      if (user && location.pathname === '/signin') {
+      if (user) {
         try {
           // Check if user has an active subscription
           const { data: subscription, error } = await supabase
@@ -50,20 +50,31 @@ export default function App() {
             console.error('Error checking subscription:', error);
           }
 
+          // Get selected plan from localStorage
           const selectedPlan = localStorage.getItem('selectedPlan');
-          
-          if (!subscription && selectedPlan) {
-            // No active subscription and coming from pricing - go to payment
-            const plan = JSON.parse(selectedPlan);
-            localStorage.removeItem('selectedPlan');
-            navigate('/payment', { state: { plan } });
-          } else {
-            // Has active subscription or no plan selected - go to app
-            navigate('/app');
+
+          // If user is trying to access app routes without subscription
+          if (location.pathname.startsWith('/app')) {
+            if (!subscription) {
+              navigate('/subscription');
+              return;
+            }
+          }
+
+          // Handle post-signin flow
+          if (location.pathname === '/signin' || location.pathname === '/signup') {
+            if (!subscription && selectedPlan) {
+              // No active subscription and coming from pricing - go to payment
+              const plan = JSON.parse(selectedPlan);
+              localStorage.removeItem('selectedPlan');
+              navigate('/payment', { state: { plan } });
+            } else {
+              // Has active subscription - go to app
+              navigate('/app');
+            }
           }
         } catch (error) {
           console.error('Error in subscription check:', error);
-          navigate('/app');
         }
       }
     };
