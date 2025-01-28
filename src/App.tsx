@@ -56,7 +56,14 @@ export default function App() {
           // If user is trying to access app routes without subscription
           if (location.pathname.startsWith('/app')) {
             if (!subscription) {
-              navigate('/subscription');
+              if (selectedPlan) {
+                // If they have a selected plan, send them to payment
+                const plan = JSON.parse(selectedPlan);
+                navigate('/payment', { state: { plan } });
+              } else {
+                // If no plan is selected, send them to subscription page
+                navigate('/subscription');
+              }
               return;
             }
           }
@@ -68,7 +75,7 @@ export default function App() {
               const plan = JSON.parse(selectedPlan);
               localStorage.removeItem('selectedPlan');
               navigate('/payment', { state: { plan } });
-            } else {
+            } else if (subscription) {
               // Has active subscription - go to app
               navigate('/app');
             }
