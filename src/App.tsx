@@ -7,6 +7,7 @@ import { About } from './pages/About';
 import { MainApp } from './pages/MainApp';
 import { Terms } from './pages/Terms';
 import { Subscription } from './pages/Subscription';
+import { SubscriptionPage } from './pages/SubscriptionPage';
 import { Privacy } from './pages/Privacy';
 import { Refund } from './pages/Refund';
 import { Contact } from './pages/Contact';
@@ -36,7 +37,7 @@ export default function App() {
     }
 
     const checkUserAndSubscription = async () => {
-      if (user) {
+      if (user && location.pathname === '/signin') {
         try {
           // Check if user has an active subscription
           const { data: subscription, error } = await supabase
@@ -50,38 +51,20 @@ export default function App() {
             console.error('Error checking subscription:', error);
           }
 
-          // Get selected plan from localStorage
           const selectedPlan = localStorage.getItem('selectedPlan');
-
-          // If user is trying to access app routes without subscription
-          if (location.pathname.startsWith('/app')) {
-            if (!subscription) {
-              if (selectedPlan) {
-                // If they have a selected plan, send them to payment
-                const plan = JSON.parse(selectedPlan);
-                navigate('/payment', { state: { plan } });
-              } else {
-                // If no plan is selected, send them to subscription page
-                navigate('/subscription');
-              }
-              return;
-            }
-          }
-
-          // Handle post-signin flow
-          if (location.pathname === '/signin' || location.pathname === '/signup') {
-            if (!subscription && selectedPlan) {
-              // No active subscription and coming from pricing - go to payment
-              const plan = JSON.parse(selectedPlan);
-              localStorage.removeItem('selectedPlan');
-              navigate('/payment', { state: { plan } });
-            } else if (subscription) {
-              // Has active subscription - go to app
-              navigate('/app');
-            }
+          
+          if (!subscription && selectedPlan) {
+            // No active subscription and coming from pricing - go to payment
+            const plan = JSON.parse(selectedPlan);
+            localStorage.removeItem('selectedPlan');
+            navigate('/payment', { state: { plan } });
+          } else {
+            // Has active subscription or no plan selected - go to app
+            navigate('/app');
           }
         } catch (error) {
           console.error('Error in subscription check:', error);
+          navigate('/app');
         }
       }
     };
@@ -103,6 +86,7 @@ export default function App() {
       <Route path="/app/history" element={<AnalysisHistory />} />
       <Route path="/terms" element={<Terms />} />
       <Route path="/subscription" element={<Subscription />} />
+      <Route path="/app/subscription" element={<SubscriptionPage />} />
       <Route path="/privacy" element={<Privacy />} />
       <Route path="/refund" element={<Refund />} />
       <Route path="/contact" element={<Contact />} />
