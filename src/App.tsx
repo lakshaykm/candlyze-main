@@ -22,6 +22,7 @@ import { PricePrediction } from './pages/PricePrediction';
 import { ShippingDelivery } from './pages/ShippingDelivery';
 import { AnalysisHistory } from './pages/AnalysisHistory';
 import { Payment } from './components/Payment';
+import { supabase } from './lib/supabase-client';
 
 export default function App() {
   const location = useLocation();
@@ -33,16 +34,41 @@ export default function App() {
     if (location.pathname.startsWith('/app')) {
       updateLastVisitedPage(location.pathname);
     }
-    if (user && location.pathname === '/signin') {
-      const selectedPlan = localStorage.getItem('selectedPlan');
-      if (selectedPlan) {
-        const plan = JSON.parse(selectedPlan);
-        localStorage.removeItem('selectedPlan');
-        navigate('/payment', { state: { plan } });
-      } else {
-        navigate('/app');
+
+    const checkUserAndSubscription = async () => {
+      if (user && location.pathname === '/signin') {
+        try {
+          // Check if user has an active subscription
+          const { data: subscription, error } = await supabase
+            .from('subscriptions')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('status', 'active')
+            .single();
+
+          if (error) {
+            console.error('Error checking subscription:', error);
+          }
+
+          const selectedPlan = localStorage.getItem('selectedPlan');
+          
+          if (!subscription && selectedPlan) {
+            // No active subscription and coming from pricing - go to payment
+            const plan = JSON.parse(selectedPlan);
+            localStorage.removeItem('selectedPlan');
+            navigate('/payment', { state: { plan } });
+          } else {
+            // Has active subscription or no plan selected - go to app
+            navigate('/app');
+          }
+        } catch (error) {
+          console.error('Error in subscription check:', error);
+          navigate('/app');
+        }
       }
-    }
+    };
+
+    checkUserAndSubscription();
   }, [location, updateLastVisitedPage, user, navigate]);
 
   return (
