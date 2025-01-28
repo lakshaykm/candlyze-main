@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from './hooks/useAuth';
 import { LandingPage } from './pages/LandingPage';
 import { Features } from './pages/Features';
@@ -23,34 +23,12 @@ import { ShippingDelivery } from './pages/ShippingDelivery';
 import { AnalysisHistory } from './pages/AnalysisHistory';
 import { Payment } from './components/Payment';
 
-
-
-const App: React.FC = () => {
-  const plans = [
-    { name: 'Basic', price: 581.01 },
-    { name: 'Pro', price: 1079.73 },
-    { name: 'Elite', price: 1910.93 },
-  ];
-
-  return (
-    <div style={{ textAlign: 'center', marginTop: '50px' }}>
-      <h1>Choose Your Subscription Plan</h1>
-      {plans.map((plan) => (
-        <Payment key={plan.name} planName={plan.name} planPrice={plan.price} />
-      ))}
-    </div>
-  );
-};
-
-
-
-
 export default function App() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { updateLastVisitedPage } = useAuth();
+  const { user, updateLastVisitedPage } = useAuth();
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Update last visited page when location changes
     if (location.pathname.startsWith('/app')) {
       updateLastVisitedPage(location.pathname);
@@ -90,7 +68,6 @@ export default function App() {
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/shipping-delivery" element={<ShippingDelivery />} />
       <Route path="/payment" element={<Payment />} />
-
     </Routes>
   );
 }
