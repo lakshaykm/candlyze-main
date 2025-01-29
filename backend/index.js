@@ -1,23 +1,55 @@
-require('dotenv').config();
-
 const express = require('express');
 const Razorpay = require('razorpay');
 const cors = require('cors');
 const crypto = require('crypto');
+require('dotenv').config();
 
 const app = express();
 
 // Configure CORS to allow requests from your frontend
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite's default port
+  origin: '*', // Update this with your frontend URL in production
   credentials: true
 }));
 
 app.use(express.json());
 
+// Add health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    service: 'CandlyzeAI Backend',
+    razorpay: {
+      keyId: process.env.RAZORPAY_KEY_ID ? 'configured' : 'missing',
+      keySecret: process.env.RAZORPAY_KEY_SECRET ? 'configured' : 'missing'
+    }
+  });
+});
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET
+});
+
+// Add a test endpoint to verify Razorpay credentials
+app.get('/api/test-razorpay', async (req, res) => {
+  try {
+    // Try to fetch a list of plans to verify credentials
+    const plans = await razorpay.plans.all();
+    res.json({ 
+      status: 'success',
+      message: 'Razorpay credentials are valid',
+      plans_count: plans.count
+    });
+  } catch (error) {
+    console.error('Razorpay test error:', error);
+    res.status(500).json({ 
+      status: 'error',
+      message: 'Razorpay credentials are invalid',
+      error: error.message
+    });
+  }
 });
 
 // Create order endpoint
@@ -68,7 +100,4 @@ app.post('/api/verify-payment', async (req, res) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
-  console.log('API endpoints:');
-  console.log('  - POST /api/create-order');
-  console.log('  - POST /api/verify-payment');
 });
