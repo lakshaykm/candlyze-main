@@ -4,6 +4,8 @@ const cors = require('cors');
 const crypto = require('crypto');
 require('dotenv').config();
 
+app.use("/payment", require("./src/components/payment"));
+
 const app = express();
 
 // Configure CORS to allow requests from your frontend
