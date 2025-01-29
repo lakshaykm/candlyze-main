@@ -12,7 +12,7 @@ export default defineConfig({
     historyApiFallback: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:3000',
+        target: import.meta.env.VITE_API_URL || 'https://candlyze-main-1.onrender.com',
         changeOrigin: true,
         secure: false,
       },
