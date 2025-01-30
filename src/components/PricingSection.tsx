@@ -5,6 +5,7 @@ import { useCurrency } from '../hooks/useCurrency';
 import { convertPrice, formatPrice } from '../utils/currencyUtils';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase-client';
+import Subscribe from "./Subscribe";
 
 interface PricingFeature {
   text: string;
