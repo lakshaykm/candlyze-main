@@ -191,3 +191,5 @@ export function PricingSection() {
     </div>
   );
 }
+
+export default Subscribe;
