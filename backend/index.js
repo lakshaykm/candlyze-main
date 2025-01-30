@@ -10,8 +10,8 @@ app.use(bodyParser.json());
 
 // Initialize Razorpay instance
 const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET,
+    key_id: process.env.VITE_RAZORPAY_KEY_ID,
+    key_secret: process.env.VITE_RAZORPAY_KEY_SECRET,
 });
 
 // Route to create a new subscription
