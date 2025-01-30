@@ -11,7 +11,7 @@ const Subscribe: React.FC<SubscribeProps> = ({ planId, userEmail }) => {
     const handleSubscription = async () => {
         setLoading(true);
         try {
-            const response = await fetch("http://localhost:5000/create-subscription", {
+            const response = await fetch("https://candlyze-main-1.onrender.com/create-subscription", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ planId, customerEmail: userEmail }),
