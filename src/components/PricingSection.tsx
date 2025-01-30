@@ -125,6 +125,7 @@ export function PricingSection() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Select the plan that best fits your trading needs and take your analysis to the next level
           </p>
+          <Subscribe planId="plan_Pl068ztAi9mX4o" userEmail="officiallk09@gmail.com" />
         </div>
 
         {loading ? (
