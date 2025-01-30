@@ -23,7 +23,7 @@ interface PricingPlan {
 
 const plans: PricingPlan[] = [
   {
-    id: 'basic',
+    id: 'plan_Pl068ztAi9mX4o',
     name: 'Basic',
     priceUSD: 6.99,
     description: 'Perfect for beginners and casual traders',
@@ -41,7 +41,7 @@ const plans: PricingPlan[] = [
     ],
   },
   {
-    id: 'pro',
+    id: 'plan_Pl06njh855KGVZ',
     name: 'Pro',
     priceUSD: 12.99,
     description: 'For serious traders who need more power',
@@ -60,7 +60,7 @@ const plans: PricingPlan[] = [
     ],
   },
   {
-    id: 'elite',
+    id: 'plan_Pl07O84sDPzQIN',
     name: 'Elite',
     priceUSD: 22.99,
     description: 'Maximum power for professional traders',
