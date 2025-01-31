@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrency } from '../hooks/useCurrency';
@@ -84,36 +84,7 @@ export function PricingSection() {
   const { currency, loading } = useCurrency();
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  const handleSubscribe = async (plan: PricingPlan) => {
-    try {
-      if (!user) {
-        // Store selected plan in localStorage before redirecting
-        localStorage.setItem('selectedPlan', JSON.stringify(plan));
-        navigate('/signin');
-        return;
-      }
-
-      // Check if user has an active subscription
-      const { data: subscription } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('status', 'active')
-        .single();
-
-      if (subscription) {
-        navigate('/app');
-        return;
-      }
-
-      // Navigate to payment page with plan details
-      navigate('/payment', { state: { plan } });
-    } catch (error) {
-      console.error('Subscription error:', error);
-      alert('Failed to process subscription. Please try again.');
-    }
-  };
+  const [selectedPlan, setSelectedPlan] = useState<PricingPlan | null>(null);
 
   return (
     <div id="pricing" className="bg-gray-50 py-20">
@@ -125,7 +96,6 @@ export function PricingSection() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Select the plan that best fits your trading needs and take your analysis to the next level
           </p>
-          <Subscribe planId="plan_Pl068ztAi9mX4o" userEmail="officiallk09@gmail.com" />
         </div>
 
         {loading ? (
@@ -136,7 +106,7 @@ export function PricingSection() {
           <div className="grid md:grid-cols-3 gap-8">
             {plans.map((plan) => (
               <div
-                key={plan.name}
+                key={plan.id}
                 className={`bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-200 hover:scale-105 ${
                   plan.highlighted ? 'ring-2 ring-blue-500' : ''
                 }`}
@@ -153,7 +123,7 @@ export function PricingSection() {
                   </div>
                   <p className="text-gray-600 mb-6">{plan.description}</p>
                   <button
-                    onClick={() => handleSubscribe(plan)}
+                    onClick={() => setSelectedPlan(plan)}
                     className={`w-full px-6 py-3 rounded-md font-medium transition-colors ${
                       plan.highlighted
                         ? 'bg-blue-600 text-white hover:bg-blue-700'
@@ -163,7 +133,6 @@ export function PricingSection() {
                     Get Started
                   </button>
                 </div>
-
                 <div className="border-t border-gray-100 px-8 py-6">
                   <ul className="space-y-4">
                     {plan.features.map((feature, index) => (
@@ -189,8 +158,9 @@ export function PricingSection() {
           </div>
         )}
       </div>
+      {selectedPlan && <Subscribe plan={selectedPlan} />}
     </div>
   );
 }
 
-export default Subscribe;
+export default PricingSection;
