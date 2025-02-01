@@ -17,12 +17,26 @@ export function useAuth() {
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
       setUser(session?.user ?? null);
+      
+      if (session?.user) {
+        // Check if user has an active subscription
+        const { data: subscription } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .eq('status', 'active')
+          .single();
+
+        if (!subscription) {
+          navigate('/subscription-plans');
+        }
+      }
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [navigate]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
