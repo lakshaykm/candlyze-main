@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import { Check } from "lucide-react";
 import { useCurrency } from "../hooks/useCurrency";
 import { convertPrice, formatPrice } from "../utils/currencyUtils";
+import Subscribe from "./Subscribe";
 
 interface PricingFeature {
   text: string;
@@ -78,43 +79,6 @@ const plans: PricingPlan[] = [
 
 export function PricingSection() {
   const { currency, loading } = useCurrency();
-  const [loadingPayment, setLoadingPayment] = useState(false);
-
-  const handleSubscribe = async (plan: PricingPlan) => {
-    setLoadingPayment(true);
-
-    try {
-      const response = await fetch("https://candlyze-main-1.onrender.com/create-subscription", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: plan.id }),
-      });
-
-      const data = await response.json();
-      setLoadingPayment(false);
-
-      if (data.subscriptionId) {
-        const options = {
-          key: "rzp_test_olwgvDPZtHPkhp", // Replace with your actual Razorpay Key ID
-          subscription_id: data.subscriptionId,
-          name: "CandlyzeAI",
-          description: "Subscription Payment",
-          handler: function (response: any) {
-            console.log("Payment successful", response);
-            alert("Subscription successful!");
-          },
-          theme: { color: "#3399cc" },
-        };
-
-        const rzp = new (window as any).Razorpay(options);
-        rzp.open();
-      }
-    } catch (error) {
-      setLoadingPayment(false);
-      console.error("Error creating subscription", error);
-      alert("Failed to process subscription. Please try again.");
-    }
-  };
 
   return (
     <div className="bg-gray-50 py-20">
@@ -134,7 +98,7 @@ export function PricingSection() {
           <div className="grid md:grid-cols-3 gap-8">
             {plans.map((plan) => (
               <div
-                key={plan.name}
+                key={plan.id}
                 className={`bg-white rounded-lg shadow-lg overflow-hidden transform transition-all duration-200 hover:scale-105 ${
                   plan.highlighted ? "ring-2 ring-blue-500" : ""
                 }`}
@@ -148,17 +112,29 @@ export function PricingSection() {
                     <span className="text-gray-600">/week</span>
                   </div>
                   <p className="text-gray-600 mb-6">{plan.description}</p>
-                  <button
-                    onClick={() => handleSubscribe(plan)}
-                    className={`w-full px-6 py-3 rounded-md font-medium transition-colors ${
-                      plan.highlighted
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                    }`}
-                    disabled={loadingPayment}
-                  >
-                    {loadingPayment ? "Processing..." : "Get Started"}
-                  </button>
+
+                  {/* Directly Integrating Subscribe Component */}
+                  <Subscribe planId={plan.id} />
+
+                </div>
+
+                <div className="border-t border-gray-100 px-8 py-6">
+                  <ul className="space-y-4">
+                    {plan.features.map((feature, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <Check
+                          className={`w-5 h-5 mt-0.5 ${
+                            feature.included ? "text-green-500" : "text-gray-300"
+                          }`}
+                        />
+                        <span
+                          className={feature.included ? "text-gray-700" : "text-gray-400"}
+                        >
+                          {feature.text}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
               </div>
             ))}
