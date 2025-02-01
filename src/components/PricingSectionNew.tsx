@@ -1,11 +1,9 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { useCurrency } from '../hooks/useCurrency';
 import { convertPrice, formatPrice } from '../utils/currencyUtils';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase-client';
-import Subscribe from "./Subscribe";
 
 interface PricingFeature {
   text: string;
@@ -31,14 +29,8 @@ const plans: PricingPlan[] = [
     chartLimit: 75,
     features: [
       { text: 'Upload up to 75 charts per week', included: true },
-      { text: 'Key Support and Resistance levels', included: true },
-      { text: 'Trend direction analysis', included: true },
-      { text: 'Historical data access', included: true },
-      { text: 'Basic historical data access', included: true },
-      { text: '24/7 Email support', included: true },
-      { text: 'Advanced pattern recognition', included: false }, 
+      { text: 'Advanced pattern recognition', included: false },
       { text: 'Chart analysis with indicator', included: false },
-      { text: 'Advanced Price Prediction', included: false },
     ],
   },
   {
@@ -50,14 +42,8 @@ const plans: PricingPlan[] = [
     highlighted: true,
     features: [
       { text: 'Upload up to 150 charts per week', included: true },
-      { text: 'Key Support and Resistance levels', included: true },
-      { text: 'Trend direction analysis', included: true },
-      { text: 'Historical data access', included: true },
-      { text: 'Basic historical data access', included: true },
-      { text: '24/7 Email support', included: true },
-      { text: 'Advanced pattern recognition', included: true }, 
+      { text: 'Advanced pattern recognition', included: true },
       { text: 'Chart analysis with indicator', included: true },
-      { text: 'Advanced Price Prediction', included: false },
     ],
   },
   {
@@ -68,32 +54,68 @@ const plans: PricingPlan[] = [
     chartLimit: 300,
     features: [
       { text: 'Upload up to 300 charts per week', included: true },
-      { text: 'Key Support and Resistance levels', included: true },
-      { text: 'Trend direction analysis', included: true },
-      { text: 'Historical data access', included: true },
-      { text: 'Basic historical data access', included: true },
-      { text: '24/7 Email support', included: true },
-      { text: 'Advanced pattern recognition', included: true }, 
+      { text: 'Advanced pattern recognition', included: true },
       { text: 'Chart analysis with indicator', included: true },
-      { text: 'Advanced Price Prediction', included: true },
     ],
   },
 ];
 
-export function PricingSectionNew() {
+export function PricingSection() {
   const { currency, loading } = useCurrency();
   const { user } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubscribe = async (plan: PricingPlan) => {
     try {
       if (!user) {
-        localStorage.setItem('selectedPlan', JSON.stringify(plan));
-        navigate('/signin');
+        alert('Please sign in to subscribe.');
         return;
       }
 
-      navigate('/payment', { state: { plan } });
+      // Check if the user already has an active subscription
+      const { data: subscription } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('status', 'active')
+        .single();
+
+      if (subscription) {
+        alert('You already have an active subscription.');
+        return;
+      }
+
+      // Create a subscription on the server
+      const response = await fetch('/api/create-subscription', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ planId: plan.id, email: user.email }),
+      });
+
+      const { subscriptionId, razorpayKey } = await response.json();
+
+      if (!subscriptionId) {
+        alert('Failed to create subscription.');
+        return;
+      }
+
+      // Open Razorpay Payment Page
+      const options = {
+        key: razorpayKey, // Razorpay Key ID from backend
+        subscription_id: subscriptionId,
+        name: 'Trading SaaS App',
+        description: `Subscription for ${plan.name} Plan`,
+        handler: function (response: any) {
+          alert('Payment successful!');
+        },
+        theme: {
+          color: '#3399cc',
+        },
+      };
+
+      const rzp = new (window as any).Razorpay(options);
+      rzp.open();
     } catch (error) {
       console.error('Subscription error:', error);
       alert('Failed to process subscription. Please try again.');
@@ -101,16 +123,15 @@ export function PricingSectionNew() {
   };
 
   return (
-    <div className="bg-gray-50 py-20">
+    <div id="pricing" className="bg-gray-50 py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
-            Choose Your Plan
+            Choose Your Trading Edge
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Select a plan that best fits your trading needs
+            Select the plan that best fits your trading needs.
           </p>
-          <Subscribe planId="plan_Pl068ztAi9mX4o" userEmail="officiallk09@gmail.com" />
         </div>
 
         {loading ? (
@@ -159,9 +180,7 @@ export function PricingSectionNew() {
                           }`}
                         />
                         <span
-                          className={
-                            feature.included ? 'text-gray-700' : 'text-gray-400'
-                          }
+                          className={feature.included ? 'text-gray-700' : 'text-gray-400'}
                         >
                           {feature.text}
                         </span>
