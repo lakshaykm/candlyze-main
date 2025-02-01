@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import { Check } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useCurrency } from "../hooks/useCurrency";
 import { convertPrice, formatPrice } from "../utils/currencyUtils";
-import { useAuth } from "../hooks/useAuth";
 
 interface PricingFeature {
   text: string;
@@ -80,24 +78,16 @@ const plans: PricingPlan[] = [
 
 export function PricingSection() {
   const { currency, loading } = useCurrency();
-  const { user } = useAuth();
-  const navigate = useNavigate();
   const [loadingPayment, setLoadingPayment] = useState(false);
 
   const handleSubscribe = async (plan: PricingPlan) => {
-    if (!user) {
-      localStorage.setItem("selectedPlan", JSON.stringify(plan));
-      navigate("/signin");
-      return;
-    }
-
     setLoadingPayment(true);
 
     try {
       const response = await fetch("https://candlyze-main-1.onrender.com/create-subscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: plan.id, customerEmail: user.email }),
+        body: JSON.stringify({ planId: plan.id }),
       });
 
       const data = await response.json();
