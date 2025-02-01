@@ -5,6 +5,7 @@ import { useCurrency } from '../hooks/useCurrency';
 import { convertPrice, formatPrice } from '../utils/currencyUtils';
 import { useAuth } from '../hooks/useAuth';
 import { supabase } from '../lib/supabase-client';
+import Subscribe from "./Subscribe";
 
 interface PricingFeature {
   text: string;
@@ -109,6 +110,7 @@ export function PricingSectionNew() {
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
             Select a plan that best fits your trading needs
           </p>
+          <Subscribe planId="plan_Pl068ztAi9mX4o" userEmail="officiallk09@gmail.com" />
         </div>
 
         {loading ? (
