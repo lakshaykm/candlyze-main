@@ -62,7 +62,7 @@ export async function getRecentCharts(): Promise<ChartEntry[]> {
     .select('*')
     .gte('created_at', cutoffDate)
     .order('created_at', { ascending: false })
-    .limit(10); // Limit to 10 most recent entries for the dashboard
+    .limit(10);
 
   if (error) {
     throw new Error('Failed to fetch charts');
