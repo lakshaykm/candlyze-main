@@ -10,6 +10,13 @@ const PLAN_TO_RAZORPAY_MAP: Record<string, string> = {
   'elite': 'plan_MxEYRBHwgCZKMv'   // Weekly Elite Plan
 };
 
+// Map plan IDs to credit amounts
+const PLAN_CREDITS: Record<string, number> = {
+  'basic': 7500,
+  'pro': 15000,
+  'elite': 30000
+};
+
 interface Plan {
   id: string;
   name: string;
@@ -123,12 +130,13 @@ export async function createSubscription(plan: Plan, email: string, name: string
             })
             .eq('id', subscription.id);
 
-          // Update user credits
+          // Update user credits based on plan
+          const planCredits = PLAN_CREDITS[plan.id] || 0;
           await supabase
             .from('user_credits')
             .upsert({
               user_id: user.id,
-              credits: plan.chartLimit,
+              credits: planCredits,
               plan: plan.name
             });
 
