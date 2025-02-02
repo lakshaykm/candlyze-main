@@ -14,6 +14,23 @@ const razorpay = new Razorpay({
     key_secret: process.env.VITE_RAZORPAY_KEY_SECRET,
 });
 
+app.get("/check-subscription", async (req, res) => {
+  const { email } = req.query;
+
+  try {
+    // Fetch user subscription data from Razorpay (or your database)
+    const subscription = await razorpay.subscriptions.fetch(email);
+
+    // Check if subscription is active
+    const isActive = subscription.status === "active";
+
+    res.json({ isActive });
+  } catch (error) {
+    console.error("Error fetching subscription:", error);
+    res.status(500).json({ isActive: false, error: "Failed to fetch subscription" });
+  }
+});
+
 // Route to create a new subscription
 app.post("/create-subscription", async (req, res) => {
     try {
