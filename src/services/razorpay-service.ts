@@ -132,14 +132,18 @@ export async function createSubscription(plan: Plan, email: string, name: string
               plan: plan.name
             });
 
-          // Show success message
-          alert('Payment successful! Your subscription is now active.');
-          
-          // Reload the page to reflect changes
-          window.location.reload();
+          // Show success message and redirect
+          alert('Payment successful! Redirecting to app...');
+          window.location.href = '/app';
         } catch (error) {
           console.error('Error in payment handler:', error);
           alert('Payment processed but activation failed. Please contact support.');
+        }
+      },
+      modal: {
+        ondismiss: function() {
+          // Handle modal dismissal (optional)
+          console.log('Checkout form closed');
         }
       },
       prefill: {
