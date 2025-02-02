@@ -23,7 +23,6 @@ import { IndicatorAnalysis } from './pages/IndicatorAnalysis';
 import { PricePrediction } from './pages/PricePrediction';
 import { ShippingDelivery } from './pages/ShippingDelivery';
 import { AnalysisHistory } from './pages/AnalysisHistory';
-import { Payment } from './components/Payment';
 import { supabase } from './lib/supabase-client';
 
 export default function App() {
@@ -52,15 +51,9 @@ export default function App() {
             console.error('Error checking subscription:', error);
           }
 
-          const selectedPlan = localStorage.getItem('selectedPlan');
-          
-          if (!subscription && selectedPlan) {
-            // No active subscription and coming from pricing - go to payment
-            const plan = JSON.parse(selectedPlan);
-            localStorage.removeItem('selectedPlan');
-            navigate('/payment', { state: { plan } });
+          if (!subscription) {
+            navigate('/subscription-plans');
           } else {
-            // Has active subscription or no plan selected - go to app
             navigate('/app');
           }
         } catch (error) {
@@ -97,7 +90,6 @@ export default function App() {
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route path="/shipping-delivery" element={<ShippingDelivery />} />
-      <Route path="/payment" element={<Payment />} />
     </Routes>
   );
 }
