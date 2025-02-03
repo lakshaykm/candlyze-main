@@ -25,9 +25,39 @@ interface Plan {
   chartLimit: number;
 }
 
+interface Subscription {
+  id: string;
+  status: string;
+  plan_id: string;
+  razorpay_subscription_id: string;
+}
+
 declare global {
   interface Window {
     Razorpay: any;
+  }
+}
+
+export async function checkActiveSubscription(userId: string): Promise<Subscription | null> {
+  try {
+    const { data: subscription, error } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .single();
+
+    if (error) {
+      if (error.code === 'PGRST116') { // No rows returned
+        return null;
+      }
+      throw error;
+    }
+
+    return subscription;
+  } catch (error) {
+    console.error('Error checking subscription:', error);
+    throw error;
   }
 }
 
@@ -58,6 +88,12 @@ export async function createSubscription(plan: Plan, email: string, name: string
     // Get the authenticated user
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('User not authenticated');
+
+    // Check if user already has an active subscription
+    const activeSubscription = await checkActiveSubscription(user.id);
+    if (activeSubscription) {
+      throw new Error('You already have an active subscription');
+    }
 
     const razorpayPlanId = PLAN_TO_RAZORPAY_MAP[plan.id];
     if (!razorpayPlanId) {
