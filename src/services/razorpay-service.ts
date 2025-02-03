@@ -12,9 +12,9 @@ const PLAN_TO_RAZORPAY_MAP: Record<string, string> = {
 
 // Map plan IDs to credit amounts
 const PLAN_CREDITS: Record<string, number> = {
-  'basic': 7500,
-  'pro': 15000,
-  'elite': 30000
+  'basic': 7500,    // 75 charts per week
+  'pro': 15000,     // 150 charts per week
+  'elite': 30000    // 300 charts per week
 };
 
 interface Plan {
@@ -102,7 +102,6 @@ export async function createSubscription(plan: Plan, email: string, name: string
       subscription_id: razorpaySubscription.id,
       name: 'CandlyzeAI',
       description: `${plan.name} Plan Subscription`,
-      image: 'https://your-logo-url.png',
       handler: async function(response: any) {
         try {
           // Verify payment on the backend
@@ -121,8 +120,8 @@ export async function createSubscription(plan: Plan, email: string, name: string
             throw new Error('Payment verification failed');
           }
 
-          // Update subscription status
-          await supabase
+          // Update subscription status in Supabase
+          const { error: updateSubError } = await supabase
             .from('subscriptions')
             .update({ 
               status: 'active',
@@ -130,9 +129,11 @@ export async function createSubscription(plan: Plan, email: string, name: string
             })
             .eq('id', subscription.id);
 
+          if (updateSubError) throw updateSubError;
+
           // Update user credits based on plan
           const planCredits = PLAN_CREDITS[plan.id] || 0;
-          await supabase
+          const { error: updateCreditsError } = await supabase
             .from('user_credits')
             .upsert({
               user_id: user.id,
@@ -140,18 +141,14 @@ export async function createSubscription(plan: Plan, email: string, name: string
               plan: plan.name
             });
 
+          if (updateCreditsError) throw updateCreditsError;
+
           // Show success message and redirect
-          alert('Payment successful! Redirecting to app...');
+          alert('Subscription activated successfully! Redirecting to app...');
           window.location.href = '/app';
         } catch (error) {
           console.error('Error in payment handler:', error);
           alert('Payment processed but activation failed. Please contact support.');
-        }
-      },
-      modal: {
-        ondismiss: function() {
-          // Handle modal dismissal (optional)
-          console.log('Checkout form closed');
         }
       },
       prefill: {
@@ -178,6 +175,11 @@ export async function createSubscription(plan: Plan, email: string, name: string
 
 export async function cancelSubscription(subscriptionId: string) {
   try {
+    // Get the authenticated user
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    // Cancel subscription with Razorpay
     const response = await fetch(`${API_URL}/api/cancel-subscription`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -185,14 +187,28 @@ export async function cancelSubscription(subscriptionId: string) {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to cancel subscription');
+      throw new Error('Failed to cancel subscription with Razorpay');
     }
 
     // Update subscription status in database
-    await supabase
+    const { error: updateSubError } = await supabase
       .from('subscriptions')
       .update({ status: 'cancelled' })
-      .eq('id', subscriptionId);
+      .eq('id', subscriptionId)
+      .eq('user_id', user.id);
+
+    if (updateSubError) throw updateSubError;
+
+    // Reset user credits
+    const { error: updateCreditsError } = await supabase
+      .from('user_credits')
+      .update({ 
+        credits: 0,
+        plan: 'Free'
+      })
+      .eq('user_id', user.id);
+
+    if (updateCreditsError) throw updateCreditsError;
 
   } catch (error) {
     console.error('Error cancelling subscription:', error);
