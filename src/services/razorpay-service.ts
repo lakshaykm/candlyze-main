@@ -147,8 +147,7 @@ export async function createSubscription(plan: Plan, email: string, name: string
             body: JSON.stringify({
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_subscription_id: response.razorpay_subscription_id,
-              razorpay_signature: response.razorpay_signature,
-              subscription_id: subscription.id
+              razorpay_signature: response.razorpay_signature
             })
           });
 
@@ -156,18 +155,28 @@ export async function createSubscription(plan: Plan, email: string, name: string
             throw new Error('Payment verification failed');
           }
 
-          // Transaction to update subscription status and user credits
-          const { error: transactionError } = await supabase.rpc('update_subscription_and_credits', {
-            p_subscription_id: subscription.id,
-            p_razorpay_subscription_id: response.razorpay_subscription_id,
-            p_user_id: user.id,
-            p_credits: PLAN_CREDITS[plan.id] || 0,
-            p_plan_name: plan.name
-          });
+          // Update subscription status
+          const { error: updateSubError } = await supabase
+            .from('subscriptions')
+            .update({
+              status: 'active',
+              razorpay_subscription_id: response.razorpay_subscription_id
+            })
+            .eq('id', subscription.id)
+            .eq('user_id', user.id);
 
-          if (transactionError) {
-            throw transactionError;
-          }
+          if (updateSubError) throw updateSubError;
+
+          // Update user credits
+          const { error: updateCreditsError } = await supabase
+            .from('user_credits')
+            .upsert({
+              user_id: user.id,
+              credits: PLAN_CREDITS[plan.id] || 0,
+              plan: plan.name
+            });
+
+          if (updateCreditsError) throw updateCreditsError;
 
           // Show success message and redirect
           alert('Subscription activated successfully! Redirecting to app...');
