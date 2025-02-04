@@ -156,28 +156,18 @@ export async function createSubscription(plan: Plan, email: string, name: string
             throw new Error('Payment verification failed');
           }
 
-          // Update subscription status in Supabase
-          const { error: updateSubError } = await supabase
-            .from('subscriptions')
-            .update({ 
-              status: 'active',
-              razorpay_subscription_id: response.razorpay_subscription_id
-            })
-            .eq('id', subscription.id);
+          // Transaction to update subscription status and user credits
+          const { error: transactionError } = await supabase.rpc('update_subscription_and_credits', {
+            p_subscription_id: subscription.id,
+            p_razorpay_subscription_id: response.razorpay_subscription_id,
+            p_user_id: user.id,
+            p_credits: PLAN_CREDITS[plan.id] || 0,
+            p_plan_name: plan.name
+          });
 
-          if (updateSubError) throw updateSubError;
-
-          // Update user credits based on plan
-          const planCredits = PLAN_CREDITS[plan.id] || 0;
-          const { error: updateCreditsError } = await supabase
-            .from('user_credits')
-            .upsert({
-              user_id: user.id,
-              credits: planCredits,
-              plan: plan.name
-            });
-
-          if (updateCreditsError) throw updateCreditsError;
+          if (transactionError) {
+            throw transactionError;
+          }
 
           // Show success message and redirect
           alert('Subscription activated successfully! Redirecting to app...');
@@ -185,6 +175,10 @@ export async function createSubscription(plan: Plan, email: string, name: string
         } catch (error) {
           console.error('Error in payment handler:', error);
           alert('Payment processed but activation failed. Please contact support.');
+          
+          // Log the error details for debugging
+          const errorDetails = error instanceof Error ? error.message : 'Unknown error';
+          console.error('Detailed error:', errorDetails);
         }
       },
       prefill: {
