@@ -12,7 +12,7 @@ app.use(bodyParser.json());
 
 // Initialize Supabase
 const supabase = createClient(
-    process.env.SUPABASE_URL, 
+    process.env.VITE_SUPABASE_URL, 
     process.env.SUPABASE_SERVICE_ROLE_KEY // Use a secure env variable
 );
 
