@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface SubscribeProps {
     planId: string;
@@ -7,6 +7,22 @@ interface SubscribeProps {
 
 const Subscribe: React.FC<SubscribeProps> = ({ planId, userEmail }) => {
     const [loading, setLoading] = useState(false);
+    const [subscriptionId, setSubscriptionId] = useState<string | null>(null);
+    const [isSubscribed, setIsSubscribed] = useState<boolean>(false);
+
+    useEffect(() => {
+        // Check if the user is already subscribed
+        const checkSubscription = async () => {
+            try {
+                const response = await fetch(`https://candlyze-main-1.onrender.com/check-subscription?email=${userEmail}`);
+                const data = await response.json();
+                setIsSubscribed(data.isActive);
+            } catch (error) {
+                console.error("Error checking subscription", error);
+            }
+        };
+        checkSubscription();
+    }, [userEmail]);
 
     const handleSubscription = async () => {
         setLoading(true);
@@ -21,14 +37,16 @@ const Subscribe: React.FC<SubscribeProps> = ({ planId, userEmail }) => {
             setLoading(false);
 
             if (data.subscriptionId) {
+                setSubscriptionId(data.subscriptionId);
                 const options = {
-                    key: "rzp_test_olwgvDPZtHPkhp", // Replace with your actual Razorpay Key ID
+                    key: "rzp_test_olwgvDPZtHPkhp",
                     subscription_id: data.subscriptionId,
                     name: "CandlyzeAI",
                     description: "Subscription Payment",
                     handler: function (response: any) {
                         console.log("Payment successful", response);
                         alert("Subscription successful!");
+                        setIsSubscribed(true);
                     },
                     theme: { color: "#3399cc" },
                 };
@@ -43,9 +61,17 @@ const Subscribe: React.FC<SubscribeProps> = ({ planId, userEmail }) => {
     };
 
     return (
-        <button onClick={handleSubscription} disabled={loading}>
-            {loading ? "Processing..." : "Subscribe Now"}
-        </button>
+        <>
+            {isSubscribed ? (
+                <button disabled className="bg-green-500 text-white px-6 py-3 rounded-md">
+                    Subscribed
+                </button>
+            ) : (
+                <button onClick={handleSubscription} disabled={loading} className="bg-blue-600 text-white px-6 py-3 rounded-md">
+                    {loading ? "Processing..." : "Subscribe Now"}
+                </button>
+            )}
+        </>
     );
 };
 
