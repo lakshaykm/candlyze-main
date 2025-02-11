@@ -1,10 +1,11 @@
+require("dotenv").config();
 const express = require("express");
 const Razorpay = require("razorpay");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const crypto = require("crypto");
 const { createClient } = require("@supabase/supabase-js");
-require("dotenv").config();
+//require("dotenv").config();
 
 const app = express();
 app.use(cors());
