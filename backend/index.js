@@ -41,7 +41,7 @@ app.post("/verify-payment", async (req, res) => {
     const customerEmail = subscriptionData.notes.email;
 
     const { data: userData, error: userError } = await supabase
-      .from("users")
+      .from("profiles")
       .select("id")
       .eq("email", customerEmail)
       .single();
