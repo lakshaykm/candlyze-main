@@ -2,7 +2,6 @@
   "name": "candlestick-chart-analyzer",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "npm install --force && vite build",
