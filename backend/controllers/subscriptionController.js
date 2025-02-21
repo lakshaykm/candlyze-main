@@ -1,3 +1,4 @@
+// Updated subscriptionController.js
 const Razorpay = require("razorpay");
 const { createClient } = require("@supabase/supabase-js");
 
@@ -11,7 +12,7 @@ const razorpayInstance = new Razorpay({
   key_secret: process.env.VITE_RAZORPAY_KEY_SECRET,
 });
 
-exports.createSubscription = async (req, res) => {
+module.exports.createSubscription = async (req, res) => {
   const { planId, customerEmail } = req.body;
 
   try {
@@ -23,7 +24,7 @@ exports.createSubscription = async (req, res) => {
     });
 
     const { data: user, error: userError } = await supabase
-      .from("users")
+      .from("profiles") // ✅ Changed from "users" to "profiles"
       .select("id")
       .eq("email", customerEmail)
       .single();
