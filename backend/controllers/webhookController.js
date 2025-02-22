@@ -1,13 +1,13 @@
 // Updated webhookController.js
-const Razorpay = require("razorpay");
-const { createClient } = require("@supabase/supabase-js");
+import Razorpay from "razorpay";
+import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
   process.env.VITE_SUPABASE_URL,
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-module.exports.handleWebhook = async (req, res) => {
+export const handleWebhook = async (req, res) => {
   console.log("🔹 Webhook received:", JSON.stringify(req.body, null, 2)); // ✅ Log full payload
 
   const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
