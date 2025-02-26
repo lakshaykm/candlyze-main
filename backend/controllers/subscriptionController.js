@@ -23,7 +23,7 @@ exports.createSubscription = async (req, res) => {
     });
 
     const { data: user, error: userError } = await supabase
-      .from("users")
+      .from("profiles")
       .select("id")
       .eq("email", customerEmail)
       .single();
