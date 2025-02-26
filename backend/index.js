@@ -23,6 +23,13 @@ const razorpay = new Razorpay({
   key_secret: process.env.VITE_RAZORPAY_KEY_SECRET,
 });
 
+
+
+app.get("/test", (req, res) => {
+  res.send("✅ Server is running!");
+});
+
+
 // Check user subscription status
 app.get("/check-subscription", async (req, res) => {
   const { email } = req.query;
