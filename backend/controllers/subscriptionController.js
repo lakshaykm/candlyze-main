@@ -26,7 +26,7 @@ exports.createSubscription = async (req, res) => {
       notes: { email: customerEmail },
     });
 
-    console.log("✅ Razorpay subscription created:", subscription.id);
+    console.log("✅ Razorpay subscription created:", subscription);
 
     console.log("🔹 Fetching user from Supabase...");
     const { data: user, error: userError } = await supabase
@@ -40,7 +40,7 @@ exports.createSubscription = async (req, res) => {
       return res.status(400).json({ error: "User not found in Supabase" });
     }
 
-    console.log("✅ User found:", user.id);
+    console.log("✅ User found:", user);
 
     console.log("🔹 Inserting subscription into Supabase...");
     const { error } = await supabase.from("subscriptions").upsert([
