@@ -82,7 +82,7 @@ app.post("/create-subscription", async (req, res) => {
 // Razorpay Webhook to verify payment and update subscription
 app.post("/verify-payment", async (req, res) => {
   try {
-    console.log("🔹 Received webhook verification request with data:", JSON.stringify(req.body, null, 2));
+    console.log("🔹 Received webhook verification request");
 
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
     const shasum = crypto.createHmac("sha256", secret);
@@ -94,29 +94,27 @@ app.post("/verify-payment", async (req, res) => {
       return res.status(400).json({ error: "Invalid signature" });
     }
 
-    const { payload } = req.body;
-    console.log("✅ Webhook payload received:", JSON.stringify(payload, null, 2));
+    console.log("✅ Webhook payload received:", JSON.stringify(req.body, null, 2));
 
-    // Check if subscription entity exists
+    const { event, payload } = req.body;
+
     if (!payload.subscription || !payload.subscription.entity) {
-      console.error("❌ Error: Subscription entity is missing from webhook payload");
+      console.error("❌ Subscription entity is missing from webhook payload");
       return res.status(400).json({ error: "Subscription entity missing" });
     }
 
     const subscriptionData = payload.subscription.entity;
     console.log("✅ Subscription Data:", subscriptionData);
 
-    // Check if plan exists in payload
-    if (!subscriptionData.plan) {
-      console.error("❌ Error: Plan details are missing from subscription data");
-      return res.status(400).json({ error: "Plan details missing" });
-    }
+    // Check what fields exist in the payload
+    console.log("🔍 Subscription fields available:", Object.keys(subscriptionData));
 
+    // Fix: Use amount_due if plan is missing
     const razorpay_subscription_id = subscriptionData.id;
     const status = subscriptionData.status;
-    const plan_id = subscriptionData.plan_id;
-    const amount = subscriptionData.plan.amount ? subscriptionData.plan.amount / 100 : 0; // ✅ Fix: Handle missing amount
-    const customerEmail = subscriptionData.notes?.email || null; // ✅ Fix: Handle missing email
+    const plan_id = subscriptionData.plan_id || "UNKNOWN_PLAN"; // ✅ Handle missing plan_id
+    const amount = subscriptionData.amount_due ? subscriptionData.amount_due / 100 : 0; // ✅ Fix for missing amount
+    const customerEmail = subscriptionData.notes?.email || null; // ✅ Fix for missing email
 
     console.log("✅ Extracted Data:", { razorpay_subscription_id, status, plan_id, amount, customerEmail });
 
@@ -127,7 +125,7 @@ app.post("/verify-payment", async (req, res) => {
 
     // Fetch user from Supabase
     const { data: userData, error: userError } = await supabase
-      .from("profiles") // ✅ Ensure it uses the correct table
+      .from("profiles")
       .select("id")
       .eq("email", customerEmail)
       .single();
@@ -166,7 +164,6 @@ app.post("/verify-payment", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // Start the server
 const PORT = process.env.PORT || 5000;
