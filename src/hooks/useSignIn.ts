@@ -11,10 +11,21 @@ export function useSignIn() {
     try {
       setLoading(true);
       setError(null);
-      await signIn({ email, password });
+      
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Sign in timeout. Please try again.')), 15000);
+      });
+
+      await Promise.race([
+        signIn({ email, password }),
+        timeoutPromise
+      ]);
+
       navigate('/app');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to sign in');
+      console.error('Sign in error:', err);
+      setError(err instanceof Error ? err.message : 'Failed to sign in. Please try again.');
+      throw err;
     } finally {
       setLoading(false);
     }
