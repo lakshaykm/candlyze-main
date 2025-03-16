@@ -28,6 +28,14 @@ const razorpay = new Razorpay({
 });
 console.log("✅ Razorpay instance initialized");
 
+
+const planCredits = {
+  "plan_basic": 7500, // Basic Plan → 7500 credits
+  "plan_pro": 15000,  // Pro Plan → 15000 credits
+  "plan_elite": 30000 // Elite Plan → 30000 credits
+};
+
+
 app.get("/test", (req, res) => {
   console.log("✅ /test route hit");
   res.send("✅ Server is running!");
@@ -138,6 +146,11 @@ app.post("/verify-payment", async (req, res) => {
     const user_id = userData.id;
     console.log("✅ User found in Supabase:", user_id);
 
+
+    const creditsToAdd = planCredits[plan_id] || 0;
+    console.log(`🔹 Credits to add for ${plan_id}: ${creditsToAdd}`);
+
+    
     // Insert or update subscription in Supabase
     const { error: insertError } = await supabase
       .from("subscriptions")
