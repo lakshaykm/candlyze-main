@@ -1,31 +1,29 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { signIn } from '../services/auth-service';
+import { useState } from "react";
+import { signIn } from "../services/auth-service";
+import { useAuth } from "./useAuth";
 
 export function useSignIn() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
+  const { setUser } = useAuth();
 
   const handleSignIn = async (email: string, password: string) => {
     try {
       setLoading(true);
       setError(null);
+      console.log("🔹 Attempting sign-in for", email);
       
-      const timeoutPromise = new Promise((_, reject) => {
-        setTimeout(() => reject(new Error('Sign in timeout. Please try again.')), 15000);
-      });
-
-      await Promise.race([
-        signIn({ email, password }),
-        timeoutPromise
-      ]);
-
-      navigate('/app');
-    } catch (err) {
-      console.error('Sign in error:', err);
-      setError(err instanceof Error ? err.message : 'Failed to sign in. Please try again.');
-      throw err;
+      const userData = await signIn({ email, password });
+      console.log("✅ Sign-in successful:", userData);
+      
+      if (!userData) {
+        throw new Error("No user data received");
+      }
+      
+      setUser(userData);
+    } catch (error) {
+      console.error("❌ Sign-in error:", error);
+      setError(error.message);
     } finally {
       setLoading(false);
     }
