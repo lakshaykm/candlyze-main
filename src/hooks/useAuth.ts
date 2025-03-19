@@ -1,60 +1,40 @@
-import { useState, useEffect } from 'react';
-import { User } from '@supabase/supabase-js';
-import { supabase } from '../lib/supabase-client';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, createContext, useContext } from "react";
+import { supabase } from "../supabase";
 
-export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+const AuthContext = createContext(null);
+
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [lastVisitedPage, setLastVisitedPage] = useState<string>('/app');
-  const navigate = useNavigate();
 
   useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
+    console.log("🔹 Checking user session...");
+    supabase.auth.getSession().then(({ data }) => {
+      console.log("✅ Session Data:", data);
+      setUser(data.session?.user ?? null);
+      setLoading(false);
+    }).catch(error => {
+      console.error("❌ Session fetch error:", error);
       setLoading(false);
     });
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      console.log("🔄 Auth state changed:", session);
       setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        // Check if user has an active subscription
-        const { data: subscription } = await supabase
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', session.user.id)
-          .eq('status', 'active')
-          .single();
-
-        if (!subscription) {
-          navigate('/subscription-plans');
-        }
-      }
     });
 
-    return () => subscription.unsubscribe();
-  }, [navigate]);
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-    navigate('/'); // Redirect to landing page after sign out
-  };
+  return (
+    <AuthContext.Provider value={{ user, setUser, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
 
-  const updateLastVisitedPage = (path: string) => {
-    // Only update if it's an app page
-    if (path.startsWith('/app')) {
-      setLastVisitedPage(path);
-    }
-  };
-
-  return {
-    user,
-    loading,
-    signOut,
-    lastVisitedPage,
-    updateLastVisitedPage
-  };
+export function useAuth() {
+  return useContext(AuthContext);
 }
